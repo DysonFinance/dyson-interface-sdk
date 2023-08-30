@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { TimeUnits } from '@/constants/timeUnits';
 
-import { buildReferralCode, parseReferralCode } from '../referralCode';
+import { buildReferralCode, parseReferralCode } from '@/agency/referralCode';
 
 const test = {
   parentSig: 'parentSig',
