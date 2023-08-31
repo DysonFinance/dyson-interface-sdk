@@ -1,5 +1,5 @@
 import { IReferralCodeItem } from '@/types/referral'
-import { atob, btoa } from '@/utils/buffer';
+import { atob, btoa } from '@/utils/buffer'
 
 export const buildReferralCode = (
   referralCode: Pick<IReferralCodeItem, 'parentSig' | 'onceKey' | 'deadline'>,

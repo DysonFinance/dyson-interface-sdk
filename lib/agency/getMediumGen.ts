@@ -1,6 +1,6 @@
-import { IAgencyGen } from '../types/agency';
-import { between } from '../utils/between';
-import { last } from '../utils/last';
+import { IAgencyGen } from '../types/agency'
+import { between } from '../utils/between'
+import { last } from '../utils/last'
 
 export function getMediumGen(nodeList: IAgencyGen[]) {
   let current = nodeList[1]

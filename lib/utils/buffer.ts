@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'buffer'
 export function atob(data: string) {
   if (typeof window !== 'undefined') {
-    return window.atob.call(null, data);
+    return window.atob.call(null, data)
   } else {
     return Buffer.from(data, 'base64').toString('binary')
   }

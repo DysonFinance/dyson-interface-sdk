@@ -1,4 +1,4 @@
-import { TimeUnits } from './timeUnits';
+import { TimeUnits } from './timeUnits'
 
 export const REFERRAL_CD = 4 * TimeUnits.Hour
 

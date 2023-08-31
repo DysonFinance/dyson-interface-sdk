@@ -1,6 +1,6 @@
-import { resolve } from 'path';
-import { defineConfig } from 'vite';
-import dts from 'vite-plugin-dts';
+import { resolve } from 'path'
+import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   resolve: {
@@ -13,27 +13,22 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        'index': './lib/index.ts',
-        'agency': './lib/agency',
-        'constants': './lib/constants',
-        'reward': './lib/reward',
+        index: './lib/index.ts',
+        agency: './lib/agency',
+        constants: './lib/constants',
+        reward: './lib/reward',
       },
       name: 'Dyson Interface SDK',
     },
     rollupOptions: {
-      external: ['buffer'],
+      external: ['buffer', 'viem'],
     },
   },
   plugins: [
     dts({
-      exclude: [
-        '**/errors/utils.ts',
-        '**/dist/**',
-        '**/*.test.ts',
-        '**/_test/**',
-      ],
+      exclude: ['**/errors/utils.ts', '**/dist/**', '**/*.test.ts', '**/_test/**'],
       outDir: 'dist/types',
       rollupTypes: true,
     }),
   ],
-});
+})

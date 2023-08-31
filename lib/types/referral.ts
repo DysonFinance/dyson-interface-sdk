@@ -1,4 +1,4 @@
-import { ChainId } from '../constants/chain';
+import { ChainId } from '../constants/chain'
 
 export interface IReferralCodeItem {
   onceAddress: string
