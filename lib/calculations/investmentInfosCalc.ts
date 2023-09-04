@@ -1,13 +1,13 @@
-import { Zero, WeiPerEther } from '@/constants'
+import { WeiPerEther } from '@/constants'
 import { formatUnits, parseUnits } from 'viem'
 
-import { getPoolTokenDataType } from '@/constants/swapPoolTokenConfig'
 import { SwapPool } from '@/types/swapPool'
 
 import { divu, exp_2, mulu } from './abdkMath64x64'
 import { calcSwappedAmount } from './apInfoCalc'
 import { sqrt } from './commonCalc'
 import { INTEGER_UNIT_BN } from '@/constants'
+import { PoolToken } from '@/types/PoolToken';
 
 export const calcStrikePriceByAmount = (
   quoteTokenAmount: number,
@@ -69,7 +69,7 @@ export const calcFeeWrapped = (lastFee: bigint, pastTime: bigint, halfLife: bigi
   return calcFee(lastFee, pastTime, halfLife) || lastFee
 }
 
-export const calcFairPriceByPoolInfoBigInt = (swapPool: SwapPool, quoteToken: string) => {
+export const calcFairPriceByPoolInfoBigInt = <T extends string>(swapPool: SwapPool, quoteToken: string, poolToken: PoolToken<T>) => {
   const calcFee0 = swapPool
     ? calcFeeWrapped(
         swapPool.fee0,
@@ -88,8 +88,8 @@ export const calcFairPriceByPoolInfoBigInt = (swapPool: SwapPool, quoteToken: st
 
   const [token0Data, token1Data] = swapPool
     ? [
-        getPoolTokenDataType(swapPool.token0Address),
-        getPoolTokenDataType(swapPool.token1Address),
+        poolToken.getPoolTokenDataType(swapPool.token0Address),
+        poolToken.getPoolTokenDataType(swapPool.token1Address),
       ]
     : [null, null] // Initialize with null
 

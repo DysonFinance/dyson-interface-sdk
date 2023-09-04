@@ -1,6 +1,6 @@
-
+import { WeiPerEther } from '@/constants'
 import { sqrt } from './commonCalc'
-import { parseUnits, formatUnits } from 'viem';
+import { parseUnits, formatUnits } from 'viem'
 
 export const calcSwappedAmount = (
   depositAmount: bigint,
@@ -8,9 +8,9 @@ export const calcSwappedAmount = (
   outputReserve: bigint,
   calcFeeValue: bigint,
 ) => {
-  const fee = (depositAmount * calcFeeValue) / (2n ** 64n)
+  const fee = (depositAmount * calcFeeValue) / 2n ** 64n
   const inputWithFee = depositAmount - fee
-  return inputWithFee * outputReserve / (inputReserve + inputWithFee)
+  return (inputWithFee * outputReserve) / (inputReserve + inputWithFee)
 }
 
 export const calcMinOutput = (
@@ -18,7 +18,10 @@ export const calcMinOutput = (
   slippage: string,
   decimals: number,
 ) => {
-  return swappedAmount - (swappedAmount * parseUnits(slippage, decimals) / parseUnits('1', decimals))
+  return (
+    swappedAmount -
+    (swappedAmount * parseUnits(slippage, decimals)) / parseUnits('1', decimals)
+  )
 }
 
 export const calcLocalAP = (
@@ -29,19 +32,18 @@ export const calcLocalAP = (
 ) => {
   return parseFloat(
     formatUnits(
-      sqrt(inputTokenAmount.mul(virtualSwapOutputAmount))
-        .mul(parseUnits(premium.toFixed(10), 18))
-        .div(WeiPerEther)
-        .mul(parseUnits((1 + boosting).toFixed(10), 18))
-        .div(WeiPerEther)
-        .toString(),
+      (((sqrt(inputTokenAmount * virtualSwapOutputAmount) *
+        parseUnits(premium.toFixed(10), 18)) /
+        WeiPerEther) *
+        parseUnits((1 + boosting).toFixed(10), 18)) /
+        WeiPerEther,
       18,
     ),
   )
 }
 
 export const calcMarginLocalSP = (
-  fairPrice: BigNumber,
+  fairPrice: bigint,
   premium: number,
   baseTokenPrice: number,
   combineTokenDecimals: number,
@@ -50,13 +52,13 @@ export const calcMarginLocalSP = (
   if (baseTokenPrice === 0) {
     return 0
   }
-  const result = sqrt(fairPrice.mul(parseUnits('1', combineTokenDecimals)))
-    .mul(WeiPerEther.add(parseUnits(boosting.toFixed(4))))
-    .div(parseUnits(baseTokenPrice.toFixed(4)))
-
-    .mul(parseUnits(premium.toFixed(4)))
-    .div(WeiPerEther)
-    .div(parseUnits('1', 9)) // remove fairPriceBn decimal (is 18 decimals bn)
+  const result =
+    (((sqrt(fairPrice * parseUnits('1', combineTokenDecimals)) *
+      (WeiPerEther + parseUnits(boosting.toFixed(4), 18))) /
+      parseUnits(baseTokenPrice.toFixed(4), 18)) *
+      parseUnits(premium.toFixed(4), 18)) /
+    WeiPerEther /
+    parseUnits('1', 9) // remove fairPriceBn decimal (is 18 decimals bn)
 
   return parseFloat(formatUnits(result, 18))
 }
@@ -90,8 +92,8 @@ export const globalApToGOV = (
 }
 
 export const calcDepositToGov = (
-  inputTokenAmount: BigNumber,
-  virtualSwapOutputAmount: BigNumber,
+  inputTokenAmount: bigint,
+  virtualSwapOutputAmount: bigint,
   premium: number,
   boosting: number,
   gaugePoolReserve: number,
