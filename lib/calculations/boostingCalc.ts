@@ -1,14 +1,12 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { Zero } from '@ethersproject/constants'
-
 import { BOOSTING_DYSN_MULTIPLIER, MAX_BONUS } from '@/constants/boosting'
 
 import { sqrt } from './commonCalc'
+import { Zero } from '@/constants'
 
-export const calcPoolBoosting = (totalSupply: BigNumber, userBalance: BigNumber) => {
-  if (totalSupply.eq(0) || userBalance.eq(0)) {
+export const calcPoolBoosting = (totalSupply: bigint, userBalance: bigint) => {
+  if (totalSupply === 0n || userBalance === 0n) {
     return Zero
   }
-  const candidateBoost = sqrt(BOOSTING_DYSN_MULTIPLIER.mul(userBalance).div(totalSupply))
-  return candidateBoost.gt(MAX_BONUS) ? MAX_BONUS : candidateBoost
+  const candidateBoost = sqrt((BOOSTING_DYSN_MULTIPLIER * userBalance) / totalSupply)
+  return candidateBoost > MAX_BONUS ? MAX_BONUS : candidateBoost
 }

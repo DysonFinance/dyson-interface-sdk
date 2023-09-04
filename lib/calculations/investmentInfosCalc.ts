@@ -1,15 +1,13 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { WeiPerEther } from '@ethersproject/constants'
-import { Zero } from '@ethersproject/constants'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import { Zero, WeiPerEther } from '@/constants'
+import { formatUnits, parseUnits } from 'viem'
 
 import { getPoolTokenDataType } from '@/constants/swapPoolTokenConfig'
-import { SwapPool } from '@/constants/types/swapPool'
+import { SwapPool } from '@/types/swapPool'
 
-import { INTEGER_UNIT_BN } from '../../constants/calc'
-import { divu, exp_2, mulu } from '../abdkMath64x64'
+import { divu, exp_2, mulu } from './abdkMath64x64'
 import { calcSwappedAmount } from './apInfoCalc'
 import { sqrt } from './commonCalc'
+import { INTEGER_UNIT_BN } from '@/constants'
 
 export const calcStrikePriceByAmount = (
   quoteTokenAmount: number,
@@ -23,10 +21,10 @@ export const calcStrikePriceByAmount = (
 
 export const calcStrikePrice = (
   depositAmountString: string,
-  depositAmount: BigNumber,
-  inputReserve: BigNumber,
-  outputReserve: BigNumber,
-  calcFeeValue: BigNumber,
+  depositAmount: bigint,
+  inputReserve: bigint,
+  outputReserve: bigint,
+  calcFeeValue: bigint,
 ) => {
   return (
     parseFloat(depositAmountString) /
@@ -39,28 +37,27 @@ export const calcStrikePrice = (
   )
 }
 
-export const calcFairPriceBigNumber = (
-  quoteTokenFee: BigNumber,
-  opponentTokenFee: BigNumber,
-  quoteTokenReserve: BigNumber,
-  opponentTokenReserve: BigNumber,
+export const calcFairPriceBigInt = (
+  quoteTokenFee: bigint,
+  opponentTokenFee: bigint,
+  quoteTokenReserve: bigint,
+  opponentTokenReserve: bigint,
   quoteTokenDecimal: number,
   opponentTokenDecimal: number,
 ) => {
-  const reasonableBaseFee = quoteTokenFee.mul(WeiPerEther).div(INTEGER_UNIT_BN)
-  const reasonableOpponentFee = opponentTokenFee.mul(WeiPerEther).div(INTEGER_UNIT_BN)
+  const reasonableBaseFee = (quoteTokenFee * WeiPerEther) / INTEGER_UNIT_BN
+  const reasonableOpponentFee = (opponentTokenFee * WeiPerEther) / INTEGER_UNIT_BN
 
   const opponentUnit = parseUnits('1', opponentTokenDecimal)
   const baseUnit = parseUnits('1', quoteTokenDecimal)
-  const result = quoteTokenReserve
-    .mul(opponentUnit)
-    .mul(WeiPerEther)
-    .mul(sqrt(WeiPerEther.sub(reasonableBaseFee).mul(WeiPerEther)))
-    .div(
-      opponentTokenReserve
-        .mul(sqrt(WeiPerEther.sub(reasonableOpponentFee).mul(WeiPerEther)))
-        .mul(baseUnit),
-    )
+  const result =
+    (quoteTokenReserve *
+      opponentUnit *
+      WeiPerEther *
+      sqrt((WeiPerEther - reasonableBaseFee) * WeiPerEther)) /
+    (opponentTokenReserve *
+      sqrt((WeiPerEther - reasonableOpponentFee) * WeiPerEther) *
+      baseUnit)
   return result // 1e18 format
 }
 
@@ -72,47 +69,44 @@ export const calcFeeWrapped = (lastFee: bigint, pastTime: bigint, halfLife: bigi
   return calcFee(lastFee, pastTime, halfLife) || lastFee
 }
 
-export const calcFairPriceByPoolInfoBigNumber = (
-  swapPool: SwapPool,
-  quoteToken: string,
-) => {
+export const calcFairPriceByPoolInfoBigInt = (swapPool: SwapPool, quoteToken: string) => {
   const calcFee0 = swapPool
     ? calcFeeWrapped(
-        swapPool.fee0.toBigInt(),
-        BigInt(~~(Date.now() / 1000) - swapPool.timeStamp0),
-        swapPool.halfLife.toBigInt(),
+        swapPool.fee0,
+        BigInt(Math.floor(Date.now() / 1000) - swapPool.timeStamp0),
+        swapPool.halfLife,
       )
-    : Zero
+    : 0n // Initialize with 0n for bigint
 
   const calcFee1 = swapPool
     ? calcFeeWrapped(
-        swapPool.fee1.toBigInt(),
-        BigInt(~~(Date.now() / 1000) - swapPool.timeStamp1),
-        swapPool.halfLife.toBigInt(),
+        swapPool.fee1,
+        BigInt(Math.floor(Date.now() / 1000) - swapPool.timeStamp1),
+        swapPool.halfLife,
       )
-    : Zero
+    : 0n // Initialize with 0n for bigint
 
   const [token0Data, token1Data] = swapPool
     ? [
         getPoolTokenDataType(swapPool.token0Address),
         getPoolTokenDataType(swapPool.token1Address),
       ]
-    : []
+    : [null, null] // Initialize with null
 
   return quoteToken === '1'
-    ? calcFairPriceBigNumber(
-        BigNumber.from(calcFee1),
-        BigNumber.from(calcFee0),
-        swapPool.token1Amount,
-        swapPool.token0Amount,
+    ? calcFairPriceBigInt(
+        calcFee1,
+        calcFee0,
+        BigInt(swapPool.token1Amount),
+        BigInt(swapPool.token0Amount),
         token1Data?.decimals || 18,
         token0Data?.decimals || 18,
       )
-    : calcFairPriceBigNumber(
-        BigNumber.from(calcFee0),
-        BigNumber.from(calcFee1),
-        swapPool.token0Amount,
-        swapPool.token1Amount,
+    : calcFairPriceBigInt(
+        calcFee0,
+        calcFee1,
+        BigInt(swapPool.token0Amount),
+        BigInt(swapPool.token1Amount),
         token0Data?.decimals || 18,
         token1Data?.decimals || 18,
       )
@@ -131,16 +125,18 @@ export const calcPriceImpact = (
   swappedAmount: number,
   inputReserve: number,
   outputReserve: number,
-  calcFeeValue: BigNumber,
+  calcFeeValue: bigint,
+  calcFeeDecimals = 18
 ) => {
-  if (isNaN(inputAmount) || inputAmount === 0) {
-    return 0
+  if (isNaN(Number(inputAmount)) || inputAmount == 0) {
+    return 0n // Return 0n for bigint
   }
-  const reasonableFee = parseFloat(
-    formatUnits(calcFeeValue.mul(WeiPerEther).div(INTEGER_UNIT_BN)),
-  )
-  const marginalPrice = (outputReserve * (1 - reasonableFee)) / inputReserve
-  const priceAveraged = swappedAmount / inputAmount
+  const reasonableFee = parseFloat(formatUnits(
+    (calcFeeValue * WeiPerEther) / INTEGER_UNIT_BN,
+    calcFeeDecimals,
+  ))
+  const marginalPrice = (outputReserve * (1 - reasonableFee)) / inputReserve 
+  const priceAveraged = swappedAmount / inputAmount 
   return priceAveraged / marginalPrice - 1
 }
 

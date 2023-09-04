@@ -1,11 +1,9 @@
-import { BigNumber } from '@ethersproject/bignumber'
-
-export const sqrt = (x: BigNumber): BigNumber => {
-  let z = x.div(2).add(1)
+export const sqrt = (x: bigint): bigint => {
+  let z = x / 2n + 1n
   let y = x
-  while (z.lt(y)) {
+  while (z < y) {
     y = z
-    z = x.div(z).add(z).div(2)
+    z = (x / z + z) / 2n
   }
   return y
 }
