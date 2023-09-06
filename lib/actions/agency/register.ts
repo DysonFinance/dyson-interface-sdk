@@ -10,6 +10,8 @@ import {
 } from 'viem'
 import { type Address, privateKeyToAddress } from 'viem/accounts'
 
+type Resolve<T> = T extends Promise<infer G> ? G : never
+
 export enum VerifyErrorOption {
   UNKNOWN,
   EXPIRED_REFERRAL_CODE,
@@ -19,7 +21,7 @@ export enum VerifyErrorOption {
   NO_EMPTY_SLOT,
 }
 
-export function queryInUsedCallData(referralCodes: string[]): string[] {
+export function queryInUsedCallData(referralCodes: Address[]): string[] {
   const filteredCode = referralCodes.filter(isAddress)
   if (!filteredCode.length) return []
   return filteredCode.map((referralCode) => {
@@ -35,6 +37,14 @@ export function decodeInUsedCallData(result: Address[]): boolean[] {
   return result.map((hash) => {
     return decodeFunctionResult({ abi: Agency, functionName: 'oneTimeCodes', data: hash })
   })
+}
+
+export function isReferral(
+  input: Resolve<ReturnType<typeof validateReferral>>,
+): input is { parentAddress: Address; onceAddress: Address } {
+  if (input === false) return false
+  if (typeof input === 'number') return false
+  return true
 }
 
 export async function validateReferral(
