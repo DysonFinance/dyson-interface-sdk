@@ -1,7 +1,15 @@
 import { parseReferralCode } from '@/agency'
 import { ChainId } from '@/constants'
-import { hashTypedData, recoverAddress } from 'viem'
-import { Address, privateKeyToAddress } from 'viem/accounts'
+import Agency from '@/constants/abis/Agency'
+import {
+  decodeFunctionResult,
+  encodeFunctionData,
+  hashTypedData,
+  isAddress,
+  recoverAddress,
+} from 'viem'
+import { type Address, privateKeyToAddress } from 'viem/accounts'
+
 export enum VerifyErrorOption {
   UNKNOWN,
   EXPIRED_REFERRAL_CODE,
@@ -11,29 +19,25 @@ export enum VerifyErrorOption {
   NO_EMPTY_SLOT,
 }
 
-function getParentNodeAddressByReferralCode(
-  chainId: ChainId,
-  parentSig: string,
-  onceKey: string,
-  deadline: string,
-  agencyContractAddress: string,
-) {
-  const address = privateKeyToAddress(onceKey as Address)
-  const parentDigest = getParentDigest(
-    chainId,
-    agencyContractAddress,
-    address,
-    parseInt(deadline),
-  )
-  const parentAddress = recoverAddress({
-    hash: parentDigest,
-    signature: parentSig as Address,
+export function queryInUsedCallData(referralCodes: string[]): string[] {
+  const filteredCode = referralCodes.filter(isAddress)
+  if (!filteredCode.length) return []
+  return filteredCode.map((referralCode) => {
+    return encodeFunctionData({
+      abi: Agency,
+      functionName: 'oneTimeCodes',
+      args: [referralCode],
+    })
   })
-  return { parentAddress, onceAddress: address }
 }
 
-export function register() {}
-export function validateReferral(
+export function decodeInUsedCallData(result: Address[]): boolean[] {
+  return result.map((hash) => {
+    return decodeFunctionResult({ abi: Agency, functionName: 'oneTimeCodes', data: hash })
+  })
+}
+
+export async function validateReferral(
   token: string,
   chainId: ChainId,
   agencyContractAddress: Address,
@@ -55,7 +59,8 @@ export function validateReferral(
     agencyContractAddress,
   )
 }
-export function getParentDigest(
+
+function getParentDigest(
   chainId: ChainId,
   agencyAddress: string,
   onceAddress: string,
@@ -90,4 +95,25 @@ export function getParentDigest(
   })
 
   return parentTypedData
+}
+
+async function getParentNodeAddressByReferralCode(
+  chainId: ChainId,
+  parentSig: string,
+  onceKey: string,
+  deadline: string,
+  agencyContractAddress: string,
+) {
+  const address = privateKeyToAddress(onceKey as Address)
+  const parentDigest = getParentDigest(
+    chainId,
+    agencyContractAddress,
+    address,
+    parseInt(deadline),
+  )
+  const parentAddress = await recoverAddress({
+    hash: parentDigest,
+    signature: parentSig as Address,
+  })
+  return { parentAddress, onceAddress: address }
 }
