@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.5.7",
+    "@viem/anvil": "^0.0.6",
     "abitype": "^0.9.8",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.1",
