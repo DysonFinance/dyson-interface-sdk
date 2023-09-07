@@ -24,10 +24,10 @@ export async function signReferral(
     types: parentTypedData.types,
     message: parentTypedData.message,
     account: client.account!,
-    primaryType: 'register'
+    primaryType: 'register',
   })
 
-  return parentSig
+  return { parentSig, onceAddress, onceKey, deadline }
 }
 
 function getParentTypedData(

@@ -2,6 +2,7 @@ import { parseReferralCode } from '@/agency'
 import { ChainId } from '@/constants'
 import Agency from '@/constants/abis/Agency'
 import {
+  type WalletClient,
   decodeFunctionResult,
   encodeFunctionData,
   hashTypedData,
@@ -21,7 +22,7 @@ export enum VerifyErrorOption {
   NO_EMPTY_SLOT,
 }
 
-export function queryInUsedCallData(referralCodes: Address[]): string[] {
+export function queryInUsedCallData(referralCodes: Address[]): Address[] {
   const filteredCode = referralCodes.filter(isAddress)
   if (!filteredCode.length) return []
   return filteredCode.map((referralCode) => {
@@ -30,6 +31,33 @@ export function queryInUsedCallData(referralCodes: Address[]): string[] {
       functionName: 'oneTimeCodes',
       args: [referralCode],
     })
+  })
+}
+
+export async function encodeRegister(
+  client: WalletClient,
+  args: {
+    chainId: ChainId
+    agencyAddress: Address
+    registerAddress: Address
+    parentSig: Address
+    deadline: bigint
+  },
+) {
+  const registerDigest = getOnceTypedData(
+    args.chainId,
+    args.agencyAddress,
+    args.registerAddress,
+  )
+  const registerSig = await client.signTypedData({
+    ...registerDigest,
+    account: args.registerAddress,
+    primaryType: 'register',
+  })
+  return encodeFunctionData({
+    abi: Agency,
+    functionName: 'register',
+    args: [args.parentSig, registerSig, args.deadline],
   })
 }
 
@@ -126,4 +154,27 @@ async function getParentNodeAddressByReferralCode(
     signature: parentSig as Address,
   })
   return { parentAddress, onceAddress: address }
+}
+
+function getOnceTypedData(
+  chainId: ChainId,
+  agencyAddress: Address,
+  childAddress: Address,
+) {
+  const registerTypedData = {
+    types: {
+      register: [{ name: 'child', type: 'address' }],
+    },
+    domain: {
+      name: 'Dyson Agency',
+      version: '1',
+      chainId: chainId,
+      verifyingContract: agencyAddress,
+    },
+    message: {
+      child: childAddress,
+    },
+  } as const
+
+  return registerTypedData
 }
