@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { testClientSepolia } from '../../../tests/utils'
 import { signReferral } from './generateReferral'
 import { ChainId, TimeUnits } from '@/constants'
-import { TEST_CONFIG } from '../../../tests/config'
+import { TEST_CHAIN_ID, TEST_CONFIG } from '../../../tests/config'
 import { Address, decodeFunctionData } from 'viem'
 import { buildReferralCode } from '@/agency'
 import {
@@ -21,7 +21,7 @@ describe('agency referral code test', () => {
   it('create code and verify', async () => {
     const result = await signReferral(
       testClientSepolia,
-      ChainId.SEPOLIA,
+      TEST_CHAIN_ID,
       TEST_CONFIG.agency as Address,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
@@ -29,7 +29,7 @@ describe('agency referral code test', () => {
     const code = buildReferralCode(result)
     const referralStatus = await validateReferral(
       code,
-      ChainId.SEPOLIA,
+      TEST_CHAIN_ID,
       TEST_CONFIG.agency as Address,
     )
     expect(referralStatus).not.toBe(VerifyErrorOption.INVALID_INPUT)
@@ -40,7 +40,7 @@ describe('agency referral code test', () => {
     let encodeData = [] as string[]
     const result = await signReferral(
       testClientSepolia,
-      ChainId.SEPOLIA,
+      TEST_CHAIN_ID,
       TEST_CONFIG.agency as Address,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
@@ -48,7 +48,7 @@ describe('agency referral code test', () => {
     const TestToken = buildReferralCode(result)
     const usedToken = await validateReferral(
       TestToken,
-      ChainId.SEPOLIA,
+      TEST_CHAIN_ID,
       TEST_CONFIG.agency as Address,
     )
     const isToken = isReferral(usedToken)
@@ -68,24 +68,13 @@ describe('agency referral code test', () => {
   it('check code on chain inused', async () => {
     const result = await signReferral(
       testClientSepolia,
-      ChainId.SEPOLIA,
+      TEST_CHAIN_ID,
       TEST_CONFIG.agency as Address,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
 
-    const multiResult = await testClientSepolia.multicall({
-      contracts: [
-        {
-          abi: Agency,
-          address: TEST_CONFIG.agency as Address,
-          functionName: 'owner',
-        },
-      ],
-    })
-
-    console.log(multiResult[0])
-
     const encodeData = queryInUsedCallData([result.onceAddress])
+    console.log(await testClientSepolia.getBytecode({address: TEST_CONFIG.agency as Address}))
 
     const { data } = await testClientSepolia.call({
       data: multicallEncode(
@@ -96,10 +85,8 @@ describe('agency referral code test', () => {
       ),
       to: sepolia.contracts.multicall3.address,
     })
+    console.log(multicallDecode(data!))
 
     console.log(decodeInUsedCallData([...multicallDecode(data!)![1]]))
-
-    const preparedSendRegister = encodeRegister({
-    })
   })
 })

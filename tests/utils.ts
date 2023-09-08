@@ -14,16 +14,17 @@ import {
 import { localhost, sepolia } from 'viem/chains'
 import type { Abi } from 'abitype'
 import { mnemonicToAccount, parseAccount } from 'viem/accounts'
+import { TEST_CHAIN_ID } from './config'
 
 export const anvilSepolia = sepolia
 
 export const publicClientSepolia = createPublicClient({
-  chain: anvilSepolia,
+  chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
   transport: http(`http://0.0.0.0:8545/1`),
 })
 
 export const testClientSepolia = createTestClient({
-  chain: anvilSepolia,
+  chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
   mode: 'anvil',
   account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY),
   transport: http(`http://0.0.0.0:8545/1`),
