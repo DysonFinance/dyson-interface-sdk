@@ -26,13 +26,27 @@ export const publicClientSepolia = createPublicClient({
 export const testClientSepolia = createTestClient({
   chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
   mode: 'anvil',
-  account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY),
+  account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY, { addressIndex: 1 }),
+  transport: http(`http://0.0.0.0:8545/1`),
+})
+  .extend(walletActions)
+  .extend(publicActions)
+
+export const testChildSepolia = createTestClient({
+  chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
+  mode: 'anvil',
+  account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY, { addressIndex: 3 }),
   transport: http(`http://0.0.0.0:8545/1`),
 })
   .extend(walletActions)
   .extend(publicActions)
 
 testClientSepolia.setBalance({
+  address: testClientSepolia.account.address,
+  value: parseUnits('1000000', 18),
+})
+
+testChildSepolia.setBalance({
   address: testClientSepolia.account.address,
   value: parseUnits('1000000', 18),
 })

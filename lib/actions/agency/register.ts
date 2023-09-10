@@ -22,7 +22,7 @@ export enum VerifyErrorOption {
   NO_EMPTY_SLOT,
 }
 
-export function queryInUsedCallData(referralCodes: Address[]): Address[] {
+export function queryAgencyOneTimeCodesCallData(referralCodes: Address[]): Address[] {
   const filteredCode = referralCodes.filter(isAddress)
   if (!filteredCode.length) return []
   return filteredCode.map((referralCode) => {
@@ -34,6 +34,12 @@ export function queryInUsedCallData(referralCodes: Address[]): Address[] {
   })
 }
 
+export function decodeAgencyOneTimeCodesCallData(result: Address[]): boolean[] {
+  return result.map((hash) => {
+    return decodeFunctionResult({ abi: Agency, functionName: 'oneTimeCodes', data: hash })
+  })
+}
+
 export async function encodeRegister(
   client: WalletClient,
   args: {
@@ -41,7 +47,7 @@ export async function encodeRegister(
     agencyAddress: Address
     registerAddress: Address
     parentSig: Address
-    deadline: bigint
+    deadline: number
   },
 ) {
   const registerDigest = getOnceTypedData(
@@ -57,13 +63,7 @@ export async function encodeRegister(
   return encodeFunctionData({
     abi: Agency,
     functionName: 'register',
-    args: [args.parentSig, registerSig, args.deadline],
-  })
-}
-
-export function decodeInUsedCallData(result: Address[]): boolean[] {
-  return result.map((hash) => {
-    return decodeFunctionResult({ abi: Agency, functionName: 'oneTimeCodes', data: hash })
+    args: [args.parentSig, registerSig, BigInt(args.deadline)],
   })
 }
 

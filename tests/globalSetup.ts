@@ -1,7 +1,5 @@
 import { startProxy, createPool } from '@viem/anvil'
 import { TEST_CHAIN_ID, TEST_JSON_RPC, TEST_MENOMIC } from './config'
-import { createPublicClient, http } from 'viem'
-import { sepolia } from 'viem/chains'
 export default async function () {
   const proxy = await startProxy({
     port: 8545,
