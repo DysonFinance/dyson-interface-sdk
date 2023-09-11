@@ -1,5 +1,5 @@
 import { prepareFunctionParams } from '@/utils/viem'
-import { parseReferralCode } from '@/agency'
+import { parseReferralCode } from './referralCode'
 import { ChainId } from '@/constants'
 import Agency from '@/constants/abis/Agency'
 import {

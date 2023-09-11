@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getMediumGen } from '../agency/getMediumGen'
+import { getMediumGen } from './getMediumGen'
 
 function buildTree(end: number, nodeCounts: number[]) {
   const list = [

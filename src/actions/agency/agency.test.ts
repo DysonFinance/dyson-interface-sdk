@@ -4,11 +4,11 @@ import {
   sendTestTransaction,
   testChildSepolia,
   testClientSepolia,
-} from '../../../tests/utils'
+} from '@tests/utils'
 import { signReferral } from './generateReferral'
 import { TimeUnits } from '@/constants'
-import { TEST_CHAIN_ID, TEST_CONFIG } from '../../../tests/config'
-import { buildReferralCode, parseReferralCode } from '@/agency'
+import { TEST_CHAIN_ID, TEST_CONFIG } from '@tests/config'
+import { buildReferralCode } from './referralCode'
 import {
   VerifyErrorOption,
   isReferral,
@@ -16,8 +16,7 @@ import {
   prepareRegister,
   validateReferral,
 } from './register'
-import { prepareAgencyInfo, prepareAgencyWhois } from './getWhois'
-import { Address } from 'viem';
+import { prepareAgencyWhois } from '@/reads/getAgencyWhois';
 
 describe('agency referral code test', () => {
   it.concurrent('create code and verify', async () => {
@@ -66,31 +65,6 @@ describe('agency referral code test', () => {
     expect(oneTimeCode.result).toStrictEqual(false)
   })
 
-  it.concurrent('agent whois', async () => {
-    const [parentAgent, childAgent] = await testClientSepolia.multicall({
-      contracts: [
-        {
-          ...prepareAgencyWhois(testClientSepolia.account.address),
-          address: TEST_CONFIG.agency,
-        },
-        {
-          ...prepareAgencyWhois(testChildSepolia.account.address),
-          address: TEST_CONFIG.agency,
-        },
-      ],
-    })
-    expect(parentAgent.result).not.toBe(0n)
-    expect(childAgent.result).toBe(0n)
-  })
-
-  it.concurrent('agent info', async () => {
-    const [_, gen] = await testClientSepolia.readContract({
-      ...prepareAgencyInfo(testClientSepolia.account.address),
-      address: TEST_CONFIG.agency,
-    })
-
-    expect(gen).toBe(1n)
-  })
 
   it('agent submitting', async () => {
     // test token cGFyZW50PTB4N2NhNjFhZTQxM2Q4N2M0ZGJkZDQ1MzM2OTkzZjBmMWM2ZWI1MWViYWM2ODA3NDA3MTFlMjk0ODgyZDU0MTg0OTQ5Y2IwMTFlZWZiNjU5YzMyNDlhYzhkYzA0OWJiYzIyZWVmMzVjNzQwNTAwNzQyZDBkNDkyNzQxOWEzMzQwOGIxYiZrZXk9MHg5MGE3NTM0YWZiODNjZDcxN2IwYjk3OTcwZTYzNWYyOTliOTYwZTcwNGRmNDA1NTU1ZDhkOWJkZTIzMjhhMGNjJmRlYWRsaW5lPTE2OTQ1OTc2Nzg=
