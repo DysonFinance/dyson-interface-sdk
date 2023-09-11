@@ -1,17 +1,15 @@
 import { ChainId } from '@/constants'
-import type { Address, Client } from 'viem'
+import type { Address, WalletClient } from 'viem'
 import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
-import { signTypedData } from 'viem/actions'
 
 export async function signReferral(
-  client: Client,
+  client: WalletClient,
   chainId: ChainId,
   agencyAddress: Address,
   deadline: number,
 ) {
   const onceKey = generatePrivateKey()
   const onceAddress = privateKeyToAddress(onceKey)
-
   const parentTypedData = getParentTypedData(
     chainId,
     agencyAddress,
@@ -19,10 +17,10 @@ export async function signReferral(
     deadline,
   )
 
-  const parentSig = await signTypedData(client, {
-    domain: parentTypedData.domain,
+  const parentSig = await client.signTypedData({
+    domain: parentTypedData.domain as any,
     types: parentTypedData.types,
-    message: parentTypedData.message,
+    message: parentTypedData.message as any,
     account: client.account!,
     primaryType: 'register',
   })
@@ -38,10 +36,16 @@ function getParentTypedData(
 ) {
   const parentTypedData = {
     types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
       register: [
         { name: 'once', type: 'address' },
-        { name: 'deadline', type: 'uint256' },
-        { name: 'price', type: 'uint256' },
+        { name: 'deadline', type: 'uint' },
+        { name: 'price', type: 'uint' },
       ],
     },
     domain: {
@@ -52,8 +56,8 @@ function getParentTypedData(
     },
     message: {
       once: onceAddress,
-      deadline: BigInt(deadline),
-      price: 0n,
+      deadline: deadline,
+      price: 0,
     },
   } as const
 

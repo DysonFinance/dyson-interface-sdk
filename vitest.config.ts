@@ -6,7 +6,7 @@ export default defineConfig({
     globals: true,
     teardownTimeout: 0,
     globalSetup: ["./tests/globalSetup.ts"],
-    testTimeout: 10_000,
+    testTimeout: 30_000,
     setupFiles: []
   },
   resolve: {

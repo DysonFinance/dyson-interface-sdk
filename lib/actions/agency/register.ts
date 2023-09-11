@@ -8,8 +8,9 @@ import {
   hashTypedData,
   recoverAddress,
   getAbiItem,
+  createWalletClient,
 } from 'viem'
-import { type Address, privateKeyToAddress } from 'viem/accounts'
+import { type Address, privateKeyToAddress, privateKeyToAccount } from 'viem/accounts'
 
 type Resolve<T> = T extends Promise<infer G> ? G : never
 
@@ -40,19 +41,22 @@ export async function prepareRegister(
   args: {
     chainId: ChainId
     contractAddress: Address
+    onceKey: Address,
     parentSig: Address
     deadline: number
   },
 ) {
+  const wallet = privateKeyToAccount(args.onceKey)
   const registerDigest = getOnceTypedData(
     args.chainId,
     args.contractAddress,
     client.account!.address,
   )
 
-  const registerSig = await client.signTypedData({
-    ...registerDigest,
-    account: client.account!.address,
+  const registerSig = await wallet.signTypedData({
+    message: registerDigest.message,
+    types: registerDigest.types,
+    domain: registerDigest.domain as any,
     primaryType: 'register',
   })
 
@@ -61,33 +65,6 @@ export async function prepareRegister(
       abi: Agency,
       name: 'register',
     }),
-    args: [args.parentSig, registerSig, BigInt(args.deadline)],
-  })
-}
-
-export async function encodeRegister(
-  client: WalletClient,
-  args: {
-    chainId: ChainId
-    agencyAddress: Address
-    registerAddress: Address
-    parentSig: Address
-    deadline: number
-  },
-) {
-  const registerDigest = getOnceTypedData(
-    args.chainId,
-    args.agencyAddress,
-    args.registerAddress,
-  )
-  const registerSig = await client.signTypedData({
-    ...registerDigest,
-    account: args.registerAddress,
-    primaryType: 'register',
-  })
-  return encodeFunctionData({
-    abi: Agency,
-    functionName: 'register',
     args: [args.parentSig, registerSig, BigInt(args.deadline)],
   })
 }
@@ -139,8 +116,8 @@ function getParentDigest(
       ],
       register: [
         { name: 'once', type: 'address' },
-        { name: 'deadline', type: 'uint256' },
-        { name: 'price', type: 'uint256' },
+        { name: 'deadline', type: 'uint' },
+        { name: 'price', type: 'uint' },
       ],
     },
     primaryType: 'register' as const,
@@ -152,8 +129,8 @@ function getParentDigest(
     },
     message: {
       once: onceAddress as Address,
-      deadline: BigInt(deadline),
-      price: 0n,
+      deadline: BigInt(deadline) as any,
+      price: 0n as any,
     },
   })
 
@@ -188,6 +165,12 @@ function getOnceTypedData(
 ) {
   const registerTypedData = {
     types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
       register: [{ name: 'child', type: 'address' }],
     },
     domain: {

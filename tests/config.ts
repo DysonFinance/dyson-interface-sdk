@@ -1,3 +1,5 @@
+import type { Address } from 'viem';
+
 enum PoolTokenType {
   USDC = 'USDC',
   DAI = 'DAI',
@@ -8,7 +10,7 @@ enum PoolTokenType {
 }
 
 export interface IMainAddressesConfig {
-  agency: string
+  agency: Address
   dyson: string
   sDyson: string
   pairFactory: string
