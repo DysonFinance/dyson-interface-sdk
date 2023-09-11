@@ -5,7 +5,7 @@ import dts from 'vite-plugin-dts'
 export default defineConfig({
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'lib'),
+      '@': resolve(__dirname, 'src'),
     },
     mainFields: ['node'],
     browserField: false,
@@ -13,10 +13,10 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        index: './lib/index.ts',
-        agency: './lib/agency',
-        constants: './lib/constants',
-        reward: './lib/reward',
+        index: './src/index.ts',
+        agency: './src/agency',
+        constants: './src/constants',
+        reward: './src/reward',
       },
       name: 'Dyson Interface SDK',
     },
