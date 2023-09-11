@@ -1,14 +1,17 @@
 import Agency from '@/constants/abis/Agency'
-import { Address, decodeFunctionResult, encodeFunctionData } from 'viem'
+import { prepareFunctionParams } from '@/utils/viem'
+import { Address, getAbiItem } from 'viem'
 
-export function queryAgencyWhoisData(address: Address) {
-  return encodeFunctionData({ abi: Agency, functionName: 'whois', args: [address] })
+export function prepareAgencyWhois(address: Address) {
+  return prepareFunctionParams({
+    abi: getAbiItem({ abi: Agency, name: 'whois' }),
+    args: [address],
+  })
 }
 
-export function decodeAgencyWhoisData(hash: Address) {
-  return decodeFunctionResult({
-    abi: Agency,
-    functionName: 'whois',
-    data: hash
+export function prepareAgencyInfo(address: Address) {
+  return prepareFunctionParams({
+    abi: getAbiItem({ abi: Agency, name: 'userInfo' }),
+    args: [address],
   })
 }

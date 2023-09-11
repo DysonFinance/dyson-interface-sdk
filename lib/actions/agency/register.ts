@@ -1,13 +1,13 @@
+import { prepareFunctionParams } from '@/utils/viem'
 import { parseReferralCode } from '@/agency'
 import { ChainId } from '@/constants'
 import Agency from '@/constants/abis/Agency'
 import {
   type WalletClient,
-  decodeFunctionResult,
   encodeFunctionData,
   hashTypedData,
-  isAddress,
   recoverAddress,
+  getAbiItem,
 } from 'viem'
 import { type Address, privateKeyToAddress } from 'viem/accounts'
 
@@ -22,21 +22,46 @@ export enum VerifyErrorOption {
   NO_EMPTY_SLOT,
 }
 
-export function queryAgencyOneTimeCodesCallData(referralCodes: Address[]): Address[] {
-  const filteredCode = referralCodes.filter(isAddress)
-  if (!filteredCode.length) return []
-  return filteredCode.map((referralCode) => {
-    return encodeFunctionData({
-      abi: Agency,
-      functionName: 'oneTimeCodes',
-      args: [referralCode],
-    })
-  })
+export function prepareOneTimeCodes(onceAddress: Address[], agencyAddress: Address) {
+  return onceAddress.map(
+    (ele) =>
+      ({
+        ...prepareFunctionParams({
+          abi: getAbiItem({ abi: Agency, name: 'oneTimeCodes' }),
+          args: [ele],
+        }),
+        address: agencyAddress,
+      }) as const,
+  )
 }
 
-export function decodeAgencyOneTimeCodesCallData(result: Address[]): boolean[] {
-  return result.map((hash) => {
-    return decodeFunctionResult({ abi: Agency, functionName: 'oneTimeCodes', data: hash })
+export async function prepareRegister(
+  client: WalletClient,
+  args: {
+    chainId: ChainId
+    contractAddress: Address
+    parentSig: Address
+    deadline: number
+  },
+) {
+  const registerDigest = getOnceTypedData(
+    args.chainId,
+    args.contractAddress,
+    client.account!.address,
+  )
+
+  const registerSig = await client.signTypedData({
+    ...registerDigest,
+    account: client.account!.address,
+    primaryType: 'register',
+  })
+
+  return prepareFunctionParams({
+    abi: getAbiItem({
+      abi: Agency,
+      name: 'register',
+    }),
+    args: [args.parentSig, registerSig, BigInt(args.deadline)],
   })
 }
 

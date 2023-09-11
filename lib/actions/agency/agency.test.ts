@@ -1,26 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import {
-  publicClientSepolia,
+  sendTestTransaction,
   testChildSepolia,
   testClientSepolia,
 } from '../../../tests/utils'
 import { signReferral } from './generateReferral'
-import { ChainId, TimeUnits } from '@/constants'
+import { TimeUnits } from '@/constants'
 import { TEST_CHAIN_ID, TEST_CONFIG } from '../../../tests/config'
-import { Address, decodeFunctionData } from 'viem'
+import { Address } from 'viem'
 import { buildReferralCode } from '@/agency'
 import {
   VerifyErrorOption,
-  decodeAgencyOneTimeCodesCallData,
-  encodeRegister,
   isReferral,
-  queryAgencyOneTimeCodesCallData,
+  prepareOneTimeCodes,
+  prepareRegister,
   validateReferral,
 } from './register'
-import Agency from '@/constants/abis/Agency'
-import { sepolia } from 'viem/chains'
-import { multicallDecode, multicallEncode } from '@/utils/multicall'
-import { decodeAgencyWhoisData, queryAgencyWhoisData } from './getWhois'
+import { prepareAgencyInfo, prepareAgencyWhois } from './getWhois'
 
 describe('agency referral code test', () => {
   it('create code and verify', async () => {
@@ -42,7 +38,6 @@ describe('agency referral code test', () => {
   })
 
   it('encode decode', async () => {
-    let encodeData = [] as string[]
     const result = await signReferral(
       testClientSepolia,
       TEST_CHAIN_ID,
@@ -58,16 +53,6 @@ describe('agency referral code test', () => {
     )
     const isToken = isReferral(usedToken)
     expect(isToken).toBe(true)
-    if (!isToken) return
-    try {
-      encodeData = queryAgencyOneTimeCodesCallData([usedToken.onceAddress])
-    } catch (error) {
-      expect(error).not.throw()
-    }
-    const firstData = encodeData.at(0) as `0x${string}`
-    const { functionName, args } = decodeFunctionData({ abi: Agency, data: firstData })
-    expect(functionName).toBe('oneTimeCodes')
-    expect(args).deep.eq([usedToken.onceAddress])
   })
 
   it('check code on chain inused', async () => {
@@ -78,42 +63,36 @@ describe('agency referral code test', () => {
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
 
-    const encodeData = queryAgencyOneTimeCodesCallData([result.onceAddress])
-
-    const { data } = await testClientSepolia.call({
-      data: multicallEncode(
-        encodeData.map((hash) => ({
-          target: TEST_CONFIG.agency as Address,
-          callData: hash,
-        })),
-      ),
-      to: sepolia.contracts.multicall3.address,
+    const [oneTimeCode] = await testClientSepolia.multicall({
+      contracts: prepareOneTimeCodes([result.onceAddress], TEST_CONFIG.agency as Address),
     })
-    expect(
-      decodeAgencyOneTimeCodesCallData([...multicallDecode(data!)![1]]),
-    ).toStrictEqual([false])
+    expect(oneTimeCode.result).toStrictEqual(false)
   })
+
   it('agent whois', async () => {
-    // guarantee the account is agency
-    // guarantee the account is not agency
-    const resultData = await testClientSepolia.call({
-      data: multicallEncode([
+    const [parentAgent, childAgent] = await testClientSepolia.multicall({
+      contracts: [
         {
-          target: TEST_CONFIG.agency as Address,
-          callData: queryAgencyWhoisData(testClientSepolia.account.address),
+          ...prepareAgencyWhois(testClientSepolia.account.address),
+          address: TEST_CONFIG.agency as Address,
         },
         {
-          target: TEST_CONFIG.agency as Address,
-          callData: queryAgencyWhoisData(testChildSepolia.account.address),
+          ...prepareAgencyWhois(testChildSepolia.account.address),
+          address: TEST_CONFIG.agency as Address,
         },
-      ]),
-      to: sepolia.contracts.multicall3.address,
+      ],
+    })
+    expect(parentAgent.result).not.toBe(0n)
+    expect(childAgent.result).toBe(0n)
+  })
+
+  it('agent info', async () => {
+    const [_, gen] = await testClientSepolia.readContract({
+      ...prepareAgencyInfo(testClientSepolia.account.address),
+      address: TEST_CONFIG.agency as Address,
     })
 
-    const [parentAgent, childAgent] = [...multicallDecode(resultData.data!)![1]]
-
-    expect(decodeAgencyWhoisData(parentAgent)).not.toBe(0n)
-    expect(decodeAgencyWhoisData(childAgent)).toBe(0n)
+    expect(gen).toBe(1n)
   })
 
   it('agent submitting', async () => {
@@ -123,20 +102,19 @@ describe('agency referral code test', () => {
       TEST_CONFIG.agency as Address,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
-
-    const hash = await testChildSepolia.sendUnsignedTransaction({
-      from: testChildSepolia.account.address,
-      to: TEST_CONFIG.agency as Address,
-      data: await encodeRegister(testChildSepolia, {
+    const { request } = await testChildSepolia.simulateContract({
+      ...(await prepareRegister(testChildSepolia, {
         ...result,
-        agencyAddress: TEST_CONFIG.agency as Address,
+        contractAddress: TEST_CONFIG.agency as Address,
         chainId: TEST_CHAIN_ID,
-        registerAddress: testChildSepolia.account.address,
-      }),
+      })),
+      address: TEST_CONFIG.agency as Address,
+      account: testChildSepolia.account,
     })
-
-    const receipt = await testChildSepolia.waitForTransactionReceipt({ hash })
-    console.log(receipt)
-    expect(receipt.status).toBe('success')
+    await sendTestTransaction({
+      ...request,
+      network: 'sepolia',
+    })
+    
   })
 })
