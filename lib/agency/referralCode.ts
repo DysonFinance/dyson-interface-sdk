@@ -1,4 +1,4 @@
-import { IReferralCodeItem } from '@/types/referral'
+import { IReferralCodeItem } from '@/entities/referral'
 import { atob, btoa } from '@/utils/buffer'
 
 export const buildReferralCode = (

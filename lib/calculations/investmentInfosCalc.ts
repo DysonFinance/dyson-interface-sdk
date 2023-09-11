@@ -1,13 +1,13 @@
 import { WeiPerEther } from '@/constants'
 import { formatUnits, parseUnits } from 'viem'
 
-import { SwapPool } from '@/types/swapPool'
+import { SwapPool } from '@/entities/swapPool'
 
 import { divu, exp_2, mulu } from './abdkMath64x64'
 import { calcSwappedAmount } from './apInfoCalc'
 import { sqrt } from './commonCalc'
 import { INTEGER_UNIT_BN } from '@/constants'
-import { PoolToken } from '@/types/PoolToken';
+import { PoolToken } from '@/entities/poolToken'
 
 export const calcStrikePriceByAmount = (
   quoteTokenAmount: number,

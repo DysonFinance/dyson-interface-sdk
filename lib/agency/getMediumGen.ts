@@ -1,4 +1,4 @@
-import { IAgencyGen } from '../types/agency'
+import { IAgencyGen } from '../entities/agency'
 import { between } from '../utils/between'
 import { last } from '../utils/last'
 

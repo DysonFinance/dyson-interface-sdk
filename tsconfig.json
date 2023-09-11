@@ -22,5 +22,5 @@
       "@/*": ["./lib/*"]
     }
   },
-  "include": ["lib"]
+  "include": ["lib", "tests"]
 }
