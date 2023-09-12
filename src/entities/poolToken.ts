@@ -1,4 +1,4 @@
-import { ChainId } from '@/constants';
+import { ChainId } from '@/constants'
 
 export interface TokenDataType<T = string> {
   icon: string
@@ -20,22 +20,24 @@ export interface TokenPriceConfig {
   constantPrice?: number
 }
 
-
 export class PoolToken<TokenType extends string> {
   #cachedOfTokenInfoAddress = new Map<string, PoolTokenDataType<TokenType>>()
-  static createPoolTokenDict<TokenType extends string>(dict: Record<TokenType, PoolTokenDataType<TokenType>>) {
+  static createPoolTokenDict<TokenType extends string>(
+    dict: Record<TokenType, PoolTokenDataType<TokenType>>,
+  ) {
     return new PoolToken(dict)
   }
 
-  constructor (public PoolTokenData: Record<TokenType, PoolTokenDataType<TokenType>>) {
-  }
+  constructor(public PoolTokenData: Record<TokenType, PoolTokenDataType<TokenType>>) {}
 
   getPoolTokenDataType(tokenAddress: string) {
     if (!tokenAddress) return
     const _tokenAddress = tokenAddress.toLowerCase()
     const savedAddress = this.#cachedOfTokenInfoAddress.get(tokenAddress)
     if (savedAddress) return savedAddress
-    for (const [, tokenInfo] of Object.entries<PoolTokenDataType<TokenType>>(this.PoolTokenData)) {
+    for (const [, tokenInfo] of Object.entries<PoolTokenDataType<TokenType>>(
+      this.PoolTokenData,
+    )) {
       if (
         Object.values(tokenInfo.address)
           .filter((e) => !!e)

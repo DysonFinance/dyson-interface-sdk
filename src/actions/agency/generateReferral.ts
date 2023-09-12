@@ -1,6 +1,7 @@
-import { ChainId } from '@/constants'
 import type { Address, WalletClient } from 'viem'
 import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
+
+import { ChainId } from '@/constants'
 
 export async function signReferral(
   client: WalletClient,

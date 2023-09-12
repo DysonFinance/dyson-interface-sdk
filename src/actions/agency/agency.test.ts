@@ -1,23 +1,25 @@
-import { describe, expect, it } from 'vitest'
+import { TEST_CHAIN_ID, TEST_CONFIG } from '@tests/config'
 import {
   publicClientSepolia,
   sendTestTransaction,
   testChildSepolia,
   testClientSepolia,
 } from '@tests/utils'
-import { signReferral } from './generateReferral'
+import { describe, expect, it } from 'vitest'
+
 import { TimeUnits } from '@/constants'
-import { TEST_CHAIN_ID, TEST_CONFIG } from '@tests/config'
+import { prepareGetAgent } from '@/reads/getAgencyInfo'
+import { prepareAgencyWhois } from '@/reads/getAgencyWhois'
+
+import { signReferral } from './generateReferral'
 import { buildReferralCode } from './referralCode'
 import {
-  VerifyErrorOption,
   isReferral,
   prepareOneTimeCodes,
   prepareRegister,
   validateReferral,
+  VerifyErrorOption,
 } from './register'
-import { prepareAgencyWhois } from '@/reads/getAgencyWhois'
-import { prepareGetAgent } from '@/reads/getAgencyInfo'
 
 describe('agency referral code test', () => {
   it.concurrent('create code and verify', async () => {

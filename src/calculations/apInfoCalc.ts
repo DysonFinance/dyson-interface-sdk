@@ -1,6 +1,8 @@
+import { formatUnits, parseUnits } from 'viem'
+
 import { WeiPerEther } from '@/constants'
+
 import { sqrt } from './commonCalc'
-import { parseUnits, formatUnits } from 'viem'
 
 export const calcSwappedAmount = (
   depositAmount: bigint,

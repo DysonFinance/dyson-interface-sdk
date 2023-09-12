@@ -1,10 +1,11 @@
-import FARM_ABI from '@/constants/abis/Farm'
-import { flatten, chunk, pick, get } from 'lodash-es'
-import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
-import { Address, PublicClient, multicall3Abi, parseAbi } from 'viem'
-import { ReadContractParameters, readContractParameters } from '@/utils/viem'
+import { chunk, flatten, get, pick } from 'lodash-es'
+import { Address, multicall3Abi, parseAbi, PublicClient } from 'viem'
 import { multicall } from 'viem/contract'
+
+import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
+import FARM_ABI from '@/constants/abis/Farm'
 import { DysonPair } from '@/entities/dysonPair'
+import { ReadContractParameters, readContractParameters } from '@/utils/viem'
 
 const erc20BalanceAbi = parseAbi([
   'function balanceOf(address account) view returns (uint256)',
@@ -52,7 +53,7 @@ function farmGaugeContract(farmAddress: Address, pairAddress: Address) {
 
 function multicall3CurrentContract(client: PublicClient) {
   return {
-    address:get(client,'chain.contracts.multicall3.address')!,
+    address: get(client, 'chain.contracts.multicall3.address')!,
     abi: multicall3Abi,
     functionName: 'getCurrentBlockTimestamp',
   }
@@ -91,7 +92,6 @@ export async function getDysonPairInfos(
 
     return callContractList
   })
-
 
   const pairDataResult = await multicall(client, {
     ...readContractParameters(args),

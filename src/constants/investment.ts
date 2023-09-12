@@ -1,8 +1,8 @@
 export interface IDepositParams {
-    tokenIn: `0x${string}`
-    tokenOut: `0x${string}`
-    addressTo: `0x${string}`
-    inputBigNumber: bigint
-    minOutput: bigint
-    duration: number
-  }
+  tokenIn: `0x${string}`
+  tokenOut: `0x${string}`
+  addressTo: `0x${string}`
+  inputBigNumber: bigint
+  minOutput: bigint
+  duration: number
+}

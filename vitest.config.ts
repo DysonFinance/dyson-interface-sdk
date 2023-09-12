@@ -5,14 +5,14 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     teardownTimeout: 0,
-    globalSetup: ["./tests/globalSetup.ts"],
+    globalSetup: ['./tests/globalSetup.ts'],
     testTimeout: 30_000,
-    setupFiles: []
+    setupFiles: [],
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@tests': resolve(__dirname, './tests/')
+      '@tests': resolve(__dirname, './tests/'),
     },
   },
 })

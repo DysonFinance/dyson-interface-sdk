@@ -1,7 +1,8 @@
-import { expect, test } from 'vitest';
-import { testClientSepolia } from '../../tests/utils';
-import { prepareAgencyInfo } from './getAgencyInfo';
-import { TEST_CONFIG } from '../../tests/config';
+import { expect, test } from 'vitest'
+
+import { TEST_CONFIG } from '../../tests/config'
+import { testClientSepolia } from '../../tests/utils'
+import { prepareAgencyInfo } from './getAgencyInfo'
 
 test.concurrent('agent info', async () => {
   const [_, gen] = await testClientSepolia.readContract({

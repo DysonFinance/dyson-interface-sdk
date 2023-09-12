@@ -1,9 +1,10 @@
+import { getAbiItem, WalletClient } from 'viem'
+
 import { ChainId } from '@/constants'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
-import { ISwapParams } from '@/constants/dex'
 import { WRAPPED_NATIVE_TOKEN } from '@/constants/addresses'
+import { ISwapParams } from '@/constants/dex'
 import { prepareFunctionParams } from '@/utils/viem'
-import { WalletClient, getAbiItem } from 'viem'
 
 export async function prepareDexSwap(client: WalletClient, args: ISwapParams) {
   const chain = client.chain
@@ -19,10 +20,10 @@ export async function prepareDexSwap(client: WalletClient, args: ISwapParams) {
 
   if (isInNative) {
     return prepareFunctionParams({
-        abi: getAbiItem({
-            abi: ROUTER_ABI,
-            name: 'swapETHIn',
-          }),
+      abi: getAbiItem({
+        abi: ROUTER_ABI,
+        name: 'swapETHIn',
+      }),
       args: [tokenOut, BigInt(1), addressTo, minOutput],
     })
   }
@@ -38,10 +39,9 @@ export async function prepareDexSwap(client: WalletClient, args: ISwapParams) {
 
   return prepareFunctionParams({
     abi: getAbiItem({
-        abi: ROUTER_ABI,
-        name: 'swap',
-      }),
-    args: [tokenIn,tokenOut, BigInt(1), addressTo, inputBigNumber, minOutput],
+      abi: ROUTER_ABI,
+      name: 'swap',
+    }),
+    args: [tokenIn, tokenOut, BigInt(1), addressTo, inputBigNumber, minOutput],
   })
 }
-

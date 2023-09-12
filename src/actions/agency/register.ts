@@ -1,16 +1,18 @@
-import { prepareFunctionParams } from '@/utils/viem'
-import { parseReferralCode } from './referralCode'
-import { ChainId } from '@/constants'
-import Agency from '@/constants/abis/Agency'
 import {
-  type WalletClient,
+  createWalletClient,
   encodeFunctionData,
+  getAbiItem,
   hashTypedData,
   recoverAddress,
-  getAbiItem,
-  createWalletClient,
+  type WalletClient,
 } from 'viem'
-import { type Address, privateKeyToAddress, privateKeyToAccount } from 'viem/accounts'
+import { type Address, privateKeyToAccount, privateKeyToAddress } from 'viem/accounts'
+
+import { ChainId } from '@/constants'
+import Agency from '@/constants/abis/Agency'
+import { prepareFunctionParams } from '@/utils/viem'
+
+import { parseReferralCode } from './referralCode'
 
 type Resolve<T> = T extends Promise<infer G> ? G : never
 
@@ -41,7 +43,7 @@ export async function prepareRegister(
   args: {
     chainId: ChainId
     contractAddress: Address
-    onceKey: Address,
+    onceKey: Address
     parentSig: Address
     deadline: number
   },

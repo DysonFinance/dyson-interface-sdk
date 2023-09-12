@@ -1,5 +1,6 @@
-import { sqrt } from '@/calculations/commonCalc';
 import { describe, expect, it } from 'vitest'
+
+import { sqrt } from '@/calculations/commonCalc'
 
 describe('common calc test', () => {
   it('Sqrt normally', () => {

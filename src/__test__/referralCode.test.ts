@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { TimeUnits } from '@/constants/timeUnits'
-
 import { buildReferralCode, parseReferralCode } from '@/actions/agency/referralCode'
+import { TimeUnits } from '@/constants/timeUnits'
 
 const test = {
   parentSig: 'parentSig',

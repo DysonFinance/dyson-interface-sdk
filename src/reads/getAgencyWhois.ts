@@ -1,6 +1,7 @@
+import { Address, getAbiItem } from 'viem'
+
 import Agency from '@/constants/abis/Agency'
 import { prepareFunctionParams } from '@/utils/viem'
-import { Address, getAbiItem } from 'viem'
 
 export function prepareAgencyWhois(address: Address) {
   return prepareFunctionParams({

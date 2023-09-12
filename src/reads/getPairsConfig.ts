@@ -1,11 +1,16 @@
-import { ChainId } from '@/constants'
 import { flatten } from 'lodash-es'
-import { DYSON_PAIR_FACTORY } from '@/constants/addresses'
+import { Address, PublicClient } from 'viem'
+import { getAbiItem, multicall } from 'viem/contract'
+
+import { ChainId } from '@/constants'
 import FACTORY_ABI from '@/constants/abis/DysonSwapFactory'
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
-import { ReadContractParameters, prepareFunctionParams, readContractParameters } from '@/utils/viem'
-import { getAbiItem, multicall } from 'viem/contract'
-import { Address, PublicClient } from 'viem'
+import { DYSON_PAIR_FACTORY } from '@/constants/addresses'
+import {
+  prepareFunctionParams,
+  ReadContractParameters,
+  readContractParameters,
+} from '@/utils/viem'
 
 export function preparePairLengths() {
   return prepareFunctionParams({
@@ -31,7 +36,10 @@ function pairTokenAddressesContract(pairAddress: Address, tokenIndex: number) {
   }
 }
 
-export async function getPairsConfig(client: PublicClient, args: ReadContractParameters<{ pairLength: number }>) {
+export async function getPairsConfig(
+  client: PublicClient,
+  args: ReadContractParameters<{ pairLength: number }>,
+) {
   const chain = client.chain
   if (!chain?.id || !DYSON_PAIR_FACTORY?.[chain.id as ChainId]) {
     throw new Error('Chain Id on wallet client is empty')
@@ -49,7 +57,12 @@ export async function getPairsConfig(client: PublicClient, args: ReadContractPar
   const tokenAddresses = (await multicall(client, {
     ...readContractParameters(args),
     allowFailure: false,
-    contracts: flatten(pairAddresses.map((pairAddress) => ([pairTokenAddressesContract(pairAddress, 0), pairTokenAddressesContract(pairAddress, 1)]))),
+    contracts: flatten(
+      pairAddresses.map((pairAddress) => [
+        pairTokenAddressesContract(pairAddress, 0),
+        pairTokenAddressesContract(pairAddress, 1),
+      ]),
+    ),
   })) as Address[]
 
   return {

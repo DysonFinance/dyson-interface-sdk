@@ -1,13 +1,13 @@
-import { WeiPerEther } from '@/constants'
 import { formatUnits, parseUnits } from 'viem'
 
+import { WeiPerEther } from '@/constants'
+import { INTEGER_UNIT_BN } from '@/constants'
 import { DysonPair } from '@/entities/dysonPair'
+import { PoolToken } from '@/entities/poolToken'
 
 import { divu, exp_2, mulu } from './abdkMath64x64'
 import { calcSwappedAmount } from './apInfoCalc'
 import { sqrt } from './commonCalc'
-import { INTEGER_UNIT_BN } from '@/constants'
-import { PoolToken } from '@/entities/poolToken'
 
 export const calcStrikePriceByAmount = (
   quoteTokenAmount: number,
@@ -69,7 +69,11 @@ export const calcFeeWrapped = (lastFee: bigint, pastTime: bigint, halfLife: bigi
   return calcFee(lastFee, pastTime, halfLife) || lastFee
 }
 
-export const calcFairPriceByPairInfoBigInt = <T extends string>(dysonPair: DysonPair, quoteToken: string, poolToken: PoolToken<T>) => {
+export const calcFairPriceByPairInfoBigInt = <T extends string>(
+  dysonPair: DysonPair,
+  quoteToken: string,
+  poolToken: PoolToken<T>,
+) => {
   const calcFee0 = dysonPair
     ? calcFeeWrapped(
         dysonPair.fee0,
@@ -126,15 +130,14 @@ export const calcPriceImpact = (
   inputReserve: number,
   outputReserve: number,
   calcFeeValue: bigint,
-  calcFeeDecimals = 18
+  calcFeeDecimals = 18,
 ) => {
   if (isNaN(Number(inputAmount)) || inputAmount == 0) {
     return 0n // Return 0n for bigint
   }
-  const reasonableFee = parseFloat(formatUnits(
-    (calcFeeValue * WeiPerEther) / INTEGER_UNIT_BN,
-    calcFeeDecimals,
-  ))
+  const reasonableFee = parseFloat(
+    formatUnits((calcFeeValue * WeiPerEther) / INTEGER_UNIT_BN, calcFeeDecimals),
+  )
   const marginalPrice = (outputReserve * (1 - reasonableFee)) / inputReserve
   const priceAveraged = swappedAmount / inputAmount
   return priceAveraged / marginalPrice - 1
