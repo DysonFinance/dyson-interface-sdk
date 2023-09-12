@@ -14,7 +14,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: './src/index.ts',
-        agency: './src/agency',
+        actions: './src/actions',
         constants: './src/constants',
         reward: './src/reward',
       },

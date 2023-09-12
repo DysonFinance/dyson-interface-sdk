@@ -8,10 +8,3 @@ export function prepareAgencyWhois(address: Address) {
     args: [address],
   })
 }
-
-export function prepareAgencyInfo(address: Address) {
-  return prepareFunctionParams({
-    abi: getAbiItem({ abi: Agency, name: 'userInfo' }),
-    args: [address],
-  })
-}
