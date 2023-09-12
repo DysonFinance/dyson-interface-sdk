@@ -16,7 +16,8 @@ import {
   prepareRegister,
   validateReferral,
 } from './register'
-import { prepareAgencyWhois } from '@/reads/getAgencyWhois';
+import { prepareAgencyWhois } from '@/reads/getAgencyWhois'
+import { prepareGetAgent } from '@/reads/getAgencyInfo'
 
 describe('agency referral code test', () => {
   it.concurrent('create code and verify', async () => {
@@ -65,7 +66,6 @@ describe('agency referral code test', () => {
     expect(oneTimeCode.result).toStrictEqual(false)
   })
 
-
   it('agent submitting', async () => {
     // test token cGFyZW50PTB4N2NhNjFhZTQxM2Q4N2M0ZGJkZDQ1MzM2OTkzZjBmMWM2ZWI1MWViYWM2ODA3NDA3MTFlMjk0ODgyZDU0MTg0OTQ5Y2IwMTFlZWZiNjU5YzMyNDlhYzhkYzA0OWJiYzIyZWVmMzVjNzQwNTAwNzQyZDBkNDkyNzQxOWEzMzQwOGIxYiZrZXk9MHg5MGE3NTM0YWZiODNjZDcxN2IwYjk3OTcwZTYzNWYyOTliOTYwZTcwNGRmNDA1NTU1ZDhkOWJkZTIzMjhhMGNjJmRlYWRsaW5lPTE2OTQ1OTc2Nzg=
     const token = await signReferral(
@@ -95,7 +95,19 @@ describe('agency referral code test', () => {
       address: TEST_CONFIG.agency,
     })
 
-    expect(register)
-      .not.toBe(0n)
+    expect(register).not.toBe(0n)
+  })
+
+  it.concurrent('getAgent', async () => {
+    const register = await publicClientSepolia.readContract({
+      ...prepareAgencyWhois(testChildSepolia.account.address),
+      address: TEST_CONFIG.agency,
+    })
+    const result = await testClientSepolia.readContract({
+      ...prepareGetAgent(register),
+      address: TEST_CONFIG.agency,
+    })
+
+    expect(result[0]).not.toBe('0x0000000000000000000000000000000000000000')
   })
 })
