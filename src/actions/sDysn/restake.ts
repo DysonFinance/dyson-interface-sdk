@@ -1,6 +1,7 @@
+import { Address, getAbiItem, PublicClient } from 'viem'
+
 import SDYSN from '@/constants/abis/SDYSN'
 import { prepareFunctionParams } from '@/utils/viem'
-import { Address, PublicClient, getAbiItem } from 'viem'
 
 export async function getRestakeGasFee(
   client: PublicClient,

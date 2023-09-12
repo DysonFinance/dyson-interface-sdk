@@ -1,7 +1,8 @@
-import { prepareFunctionParams } from '@/utils/viem'
-import SDYSN from '@/constants/abis/SDYSN'
 import { Address, Client, getAbiItem } from 'viem'
 import { estimateContractGas } from 'viem/actions'
+
+import SDYSN from '@/constants/abis/SDYSN'
+import { prepareFunctionParams } from '@/utils/viem'
 
 export async function getStakeGasFee(
   client: Client,

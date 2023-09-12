@@ -1,6 +1,7 @@
+import { Address, getAbiItem } from 'viem'
+
 import SDYSN from '@/constants/abis/SDYSN'
 import { prepareFunctionParams } from '@/utils/viem'
-import { Address, getAbiItem } from 'viem'
 export function getBaseSDysonInfo() {
   return prepareFunctionParams({
     abi: getAbiItem({ abi: SDYSN, name: 'totalSupply' }),

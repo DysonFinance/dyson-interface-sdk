@@ -1,19 +1,18 @@
+import type { Abi } from 'abitype'
 import {
-  Chain,
-  SimulateContractParameters,
-  WriteContractParameters,
   createPublicClient,
   createTestClient,
-  createWalletClient,
   encodeFunctionData,
   http,
   parseUnits,
   publicActions,
+  SimulateContractParameters,
   walletActions,
+  WriteContractParameters,
 } from 'viem'
-import { localhost, sepolia } from 'viem/chains'
-import type { Abi } from 'abitype'
 import { mnemonicToAccount, parseAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
+
 import { TEST_CHAIN_ID } from './config'
 
 export const anvilSepolia = sepolia

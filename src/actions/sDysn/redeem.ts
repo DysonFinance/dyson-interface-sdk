@@ -1,6 +1,7 @@
+import { Address, getAbiItem, PublicClient } from 'viem'
+
 import SDYSN from '@/constants/abis/SDYSN'
 import { prepareFunctionParams } from '@/utils/viem'
-import { Address, PublicClient, getAbiItem } from 'viem'
 
 export async function getUnstakeGasFee(
   client: PublicClient,
@@ -20,7 +21,7 @@ export async function getUnstakeGasFee(
   return (gasFee * 15000n) / 10000n
 }
 
-export function prepareUnstake(to: Address, index: number, sDYSNAmount: bigint) {
+export function prepareUnstake(to: Address, index: number | bigint, sDYSNAmount: bigint) {
   return prepareFunctionParams({
     abi: getAbiItem({ abi: SDYSN, name: 'unstake' }),
     args: [to, BigInt(index), sDYSNAmount],
