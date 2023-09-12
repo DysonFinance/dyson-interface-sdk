@@ -1,7 +1,7 @@
 import { ChainId } from '@/constants'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { ISwapParams } from '@/constants/dex'
-import { WRAPPED_NATIVE_TOKEN } from '@/constants/router'
+import { WRAPPED_NATIVE_TOKEN } from '@/constants/addresses'
 import { prepareFunctionParams } from '@/utils/viem'
 import { WalletClient, getAbiItem } from 'viem'
 
