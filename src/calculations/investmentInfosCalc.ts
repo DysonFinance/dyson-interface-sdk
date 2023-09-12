@@ -1,7 +1,7 @@
 import { WeiPerEther } from '@/constants'
 import { formatUnits, parseUnits } from 'viem'
 
-import { SwapPool } from '@/entities/swapPool'
+import { DysonPair } from '@/entities/dysonPair'
 
 import { divu, exp_2, mulu } from './abdkMath64x64'
 import { calcSwappedAmount } from './apInfoCalc'
@@ -69,27 +69,27 @@ export const calcFeeWrapped = (lastFee: bigint, pastTime: bigint, halfLife: bigi
   return calcFee(lastFee, pastTime, halfLife) || lastFee
 }
 
-export const calcFairPriceByPoolInfoBigInt = <T extends string>(swapPool: SwapPool, quoteToken: string, poolToken: PoolToken<T>) => {
-  const calcFee0 = swapPool
+export const calcFairPriceByPairInfoBigInt = <T extends string>(dysonPair: DysonPair, quoteToken: string, poolToken: PoolToken<T>) => {
+  const calcFee0 = dysonPair
     ? calcFeeWrapped(
-        swapPool.fee0,
-        BigInt(Math.floor(Date.now() / 1000) - swapPool.timeStamp0),
-        swapPool.halfLife,
+        dysonPair.fee0,
+        BigInt(Math.floor(Date.now() / 1000) - dysonPair.timeStamp0),
+        dysonPair.halfLife,
       )
     : 0n // Initialize with 0n for bigint
 
-  const calcFee1 = swapPool
+  const calcFee1 = dysonPair
     ? calcFeeWrapped(
-        swapPool.fee1,
-        BigInt(Math.floor(Date.now() / 1000) - swapPool.timeStamp1),
-        swapPool.halfLife,
+        dysonPair.fee1,
+        BigInt(Math.floor(Date.now() / 1000) - dysonPair.timeStamp1),
+        dysonPair.halfLife,
       )
     : 0n // Initialize with 0n for bigint
 
-  const [token0Data, token1Data] = swapPool
+  const [token0Data, token1Data] = dysonPair
     ? [
-        poolToken.getPoolTokenDataType(swapPool.token0Address),
-        poolToken.getPoolTokenDataType(swapPool.token1Address),
+        poolToken.getPoolTokenDataType(dysonPair.token0Address),
+        poolToken.getPoolTokenDataType(dysonPair.token1Address),
       ]
     : [null, null] // Initialize with null
 
@@ -97,16 +97,16 @@ export const calcFairPriceByPoolInfoBigInt = <T extends string>(swapPool: SwapPo
     ? calcFairPriceBigInt(
         calcFee1,
         calcFee0,
-        BigInt(swapPool.token1Amount),
-        BigInt(swapPool.token0Amount),
+        BigInt(dysonPair.token1Amount),
+        BigInt(dysonPair.token0Amount),
         token1Data?.decimals || 18,
         token0Data?.decimals || 18,
       )
     : calcFairPriceBigInt(
         calcFee0,
         calcFee1,
-        BigInt(swapPool.token0Amount),
-        BigInt(swapPool.token1Amount),
+        BigInt(dysonPair.token0Amount),
+        BigInt(dysonPair.token1Amount),
         token0Data?.decimals || 18,
         token1Data?.decimals || 18,
       )
@@ -135,8 +135,8 @@ export const calcPriceImpact = (
     (calcFeeValue * WeiPerEther) / INTEGER_UNIT_BN,
     calcFeeDecimals,
   ))
-  const marginalPrice = (outputReserve * (1 - reasonableFee)) / inputReserve 
-  const priceAveraged = swappedAmount / inputAmount 
+  const marginalPrice = (outputReserve * (1 - reasonableFee)) / inputReserve
+  const priceAveraged = swappedAmount / inputAmount
   return priceAveraged / marginalPrice - 1
 }
 

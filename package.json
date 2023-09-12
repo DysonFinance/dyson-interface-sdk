@@ -22,7 +22,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@types/node": "^20.5.9",
+    "@types/node": "^20.6.0",
     "@viem/anvil": "^0.0.6",
     "abitype": "^0.9.8",
     "prettier": "^3.0.3",
@@ -35,6 +35,6 @@
   "dependencies": {
     "@types/lodash-es": "^4.17.9",
     "lodash-es": "^4.17.21",
-    "viem": "^1.10.8"
+    "viem": "^1.10.9"
   }
 }

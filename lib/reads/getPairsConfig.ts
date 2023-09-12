@@ -1,8 +1,8 @@
 import { ChainId } from '@/constants'
 import { flatten } from 'lodash-es'
-import { SWAP_POOL_FACTORY } from '@/constants/addresses'
+import { DYSON_PAIR_FACTORY } from '@/constants/addresses'
 import FACTORY_ABI from '@/constants/abis/DysonSwapFactory'
-import DYSON_POOL_ABI from '@/constants/abis/DysonSwapPair'
+import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
 import { ReadContractParameters, prepareFunctionParams, readContractParameters } from '@/utils/viem'
 import { getAbiItem, multicall } from 'viem/contract'
 import { Address, PublicClient } from 'viem'
@@ -26,18 +26,18 @@ function pairTokenAddressesContract(pairAddress: Address, tokenIndex: number) {
   const callName = tokenIndex === 0 ? 'token0' : 'token1'
   return {
     address: pairAddress,
-    abi: DYSON_POOL_ABI,
+    abi: DYSON_PAIR_ABI,
     functionName: callName,
   }
 }
 
 export async function getPairsConfig(client: PublicClient, args: ReadContractParameters<{ pairLength: number }>) {
   const chain = client.chain
-  if (!chain?.id || !SWAP_POOL_FACTORY?.[chain.id as ChainId]) {
+  if (!chain?.id || !DYSON_PAIR_FACTORY?.[chain.id as ChainId]) {
     throw new Error('Chain Id on wallet client is empty')
   }
 
-  const factoryAddress = SWAP_POOL_FACTORY[chain.id as ChainId] as Address
+  const factoryAddress = DYSON_PAIR_FACTORY[chain.id as ChainId] as Address
   let arr = new Array(args.pairLength)
 
   const pairAddresses = (await multicall(client, {

@@ -16,7 +16,7 @@ export const WRAPPED_NATIVE_TOKEN = {
   }
 
 
-export const SWAP_POOL_FACTORY: {
+export const DYSON_PAIR_FACTORY: {
   [chainId in ChainId]?: string
 } = {
   [ChainId.MAINNET]: '',

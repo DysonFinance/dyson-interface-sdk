@@ -1,6 +1,6 @@
 import { ChainId } from '@/constants'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
-import DYSON_POOL_ABI from '@/constants/abis/DysonSwapPair'
+import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
 
 import { ROUTER_ADDRESS } from '@/constants/addresses'
 import { prepareFunctionParams } from '@/utils/viem'
@@ -8,7 +8,7 @@ import { Address, WalletClient, getAbiItem } from 'viem'
 
 export function getWithdrawNoteTypedData(
   chainId: ChainId,
-  swapPoolAddress: string,
+  dysonPairAddress: string,
   noteIndex: number,
   routerAddress: string,
 ): any {
@@ -26,7 +26,7 @@ export function getWithdrawNoteTypedData(
       name: 'DysonPair',
       version: '1',
       chainId: chainId,
-      verifyingContract: swapPoolAddress as Address,
+      verifyingContract: dysonPairAddress as Address,
     },
     message: {
       operator: routerAddress as Address,
@@ -44,7 +44,7 @@ export async function prepareNoteWithdraw(
   args: {
     isNativePool: boolean
     noteIndex: number
-    poolAddress: `0x${string}`
+    pairAddress: `0x${string}`
     addressTo: `0x${string}`
   },
 ) {
@@ -53,12 +53,12 @@ export async function prepareNoteWithdraw(
     throw new Error('Chain Id on wallet client is empty')
   }
 
-  const { isNativePool, noteIndex, poolAddress, addressTo } = args
+  const { isNativePool, noteIndex, pairAddress, addressTo } = args
 
   if (isNativePool) {
     const sigTypeData = getWithdrawNoteTypedData(
       chain.id,
-      poolAddress,
+      pairAddress,
       noteIndex,
       ROUTER_ADDRESS[chain.id as ChainId],
     )
@@ -73,13 +73,13 @@ export async function prepareNoteWithdraw(
         abi: ROUTER_ABI,
         name: 'withdrawETH',
       }),
-      args: [poolAddress, BigInt(noteIndex), addressTo, BigInt(0), withdrawSig],
+      args: [pairAddress, BigInt(noteIndex), addressTo, BigInt(0), withdrawSig],
     })
   }
 
   return prepareFunctionParams({
     abi: getAbiItem({
-      abi: DYSON_POOL_ABI,
+      abi: DYSON_PAIR_ABI,
       name: 'withdraw',
     }),
     args: [BigInt(noteIndex)],
