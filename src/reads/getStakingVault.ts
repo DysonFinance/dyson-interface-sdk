@@ -14,10 +14,10 @@ export async function getVaults(
   client: PublicClient,
   contractAddress: Address,
   address: Address,
-  amount: number,
+  vaultAmount: number,
 ) {
   return await client.multicall({
-    contracts: Array.from({ length: amount }).map((_, i) => ({
+    contracts: Array.from({ length: vaultAmount }).map((_, i) => ({
       ...prepareFunctionParams({
         abi: getAbiItem({ abi: SDYSN, name: 'vaults' }),
         args: [address, BigInt(i)],

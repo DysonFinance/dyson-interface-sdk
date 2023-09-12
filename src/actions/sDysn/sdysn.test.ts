@@ -1,5 +1,6 @@
 import { TEST_CONFIG } from '@tests/config'
 import { publicClientSepolia, sendTestTransaction, testClientSepolia } from '@tests/utils'
+import { maxUint256 } from 'viem'
 import { describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
@@ -7,6 +8,7 @@ import Dyson from '@/constants/abis/Dyson'
 import { getVaultCount, getVaults } from '@/reads/getStakingVault'
 
 import { prepareUnstake } from './redeem'
+import { prepareRestake } from './restake'
 import { getStakeGasFee, prepareStake } from './stake'
 
 let savedAmount = 0n
@@ -25,19 +27,15 @@ describe('sdysn test', () => {
         abi: Dyson,
         address: TEST_CONFIG.dyson,
         functionName: 'approve',
-        args: [TEST_CONFIG.sDyson, lockDYSN],
+        args: [TEST_CONFIG.sDyson, maxUint256],
         account: testClientSepolia.account,
       },
     })
 
-    const { result: resultOfStake } = await sendTestTransaction({
+    await sendTestTransaction({
       network: 'sepolia',
       ...{
-        ...prepareStake(
-          testClientSepolia.account.address,
-          lockDYSN,
-          30 * TimeUnits.Minute,
-        ),
+        ...prepareStake(testClientSepolia.account.address, lockDYSN, 30 * TimeUnits.Day),
         address: TEST_CONFIG.sDyson,
         gas: await getStakeGasFee(
           testClientSepolia,
@@ -45,21 +43,28 @@ describe('sdysn test', () => {
           testClientSepolia.account.address,
           testClientSepolia.account.address,
           lockDYSN,
-          30 * TimeUnits.Minute,
+          30 * TimeUnits.Day,
         ),
         account: testClientSepolia.account,
       },
     })
-    console.log(resultOfStake)
 
     const vaultsAmount = await publicClientSepolia.readContract({
       ...getVaultCount(testClientSepolia.account.address),
       address: TEST_CONFIG.sDyson,
     })
 
-    console.log(vaultsAmount)
     expect(vaultsAmount).not.toBe(savedAmount)
     savedAmount = vaultsAmount
+  })
+  const appendingLock = 50n
+  it('restake', async () => {
+    await sendTestTransaction({
+      ...prepareRestake(Number(savedAmount) - 1, appendingLock, 30 * TimeUnits.Day + 10),
+      account: testClientSepolia.account,
+      address: TEST_CONFIG.sDyson,
+      network: 'sepolia',
+    })
   })
 
   it('redeem', async () => {
@@ -69,16 +74,13 @@ describe('sdysn test', () => {
       testClientSepolia.account.address,
       Number(savedAmount),
     )
-    console.log(vaults)
-    expect(vaults[Number(savedAmount) - 1].result![0]).toBe(lockDYSN)
+    expect(vaults[Number(savedAmount) - 1].result![0]).toBe(lockDYSN + appendingLock)
     await testClientSepolia.increaseTime({
       seconds: 4 * TimeUnits.Year,
     })
     await testClientSepolia.mine({
       blocks: 1,
     })
-    console.log((await testClientSepolia.getBlock()).timestamp)
-    console.log(vaults[Number(savedAmount) - 1].result![1])
     await sendTestTransaction({
       ...prepareUnstake(
         testClientSepolia.account.address,
