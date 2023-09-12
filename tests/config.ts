@@ -11,8 +11,8 @@ enum PoolTokenType {
 
 export interface IMainAddressesConfig {
   agency: Address
-  dyson: string
-  sDyson: string
+  dyson: Address
+  sDyson: Address
   pairFactory: string
   router: string
   farm: string

@@ -4,11 +4,10 @@ import { ChainId } from '@/constants'
 import Agency from '@/constants/abis/Agency'
 import {
   type WalletClient,
-  encodeFunctionData,
   hashTypedData,
   recoverAddress,
   getAbiItem,
-  createWalletClient,
+  Hash,
 } from 'viem'
 import { type Address, privateKeyToAddress, privateKeyToAccount } from 'viem/accounts'
 
@@ -42,7 +41,7 @@ export async function prepareRegister(
     chainId: ChainId
     contractAddress: Address
     onceKey: Address,
-    parentSig: Address
+    parentSig: Hash
     deadline: number
   },
 ) {
