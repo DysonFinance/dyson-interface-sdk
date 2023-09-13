@@ -7,7 +7,7 @@ export default defineConfig({
     teardownTimeout: 0,
     globalSetup: ['./tests/globalSetup.ts'],
     testTimeout: 30_000,
-    setupFiles: [],
+    setupFiles: ['./tests/setup.ts'],
   },
   resolve: {
     alias: {

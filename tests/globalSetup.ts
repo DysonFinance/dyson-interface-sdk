@@ -1,4 +1,5 @@
-import { startProxy, createPool } from '@viem/anvil'
+import { createPool, startProxy } from '@viem/anvil'
+
 import { TEST_CHAIN_ID, TEST_JSON_RPC, TEST_MENOMIC } from './config'
 export default async function () {
   const proxy = await startProxy({

@@ -1,11 +1,4 @@
-import {
-  createWalletClient,
-  encodeFunctionData,
-  getAbiItem,
-  hashTypedData,
-  recoverAddress,
-  type WalletClient,
-} from 'viem'
+import { getAbiItem, Hash, hashTypedData, recoverAddress, type WalletClient } from 'viem'
 import { type Address, privateKeyToAccount, privateKeyToAddress } from 'viem/accounts'
 
 import { ChainId } from '@/constants'
@@ -44,7 +37,7 @@ export async function prepareRegister(
     chainId: ChainId
     contractAddress: Address
     onceKey: Address
-    parentSig: Address
+    parentSig: Hash
     deadline: number
   },
 ) {

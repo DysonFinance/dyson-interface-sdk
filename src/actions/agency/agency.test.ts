@@ -21,7 +21,7 @@ import {
   VerifyErrorOption,
 } from './register'
 
-describe('agency referral code test', () => {
+describe.concurrent('agency referral code test', () => {
   it.concurrent('create code and verify', async () => {
     const result = await signReferral(
       testClientSepolia,
@@ -50,7 +50,6 @@ describe('agency referral code test', () => {
     expect(isToken).toBe(true)
     if (isReferral(usedToken)) {
       expect(usedToken.parentAddress).toBe(testClientSepolia.account.address)
-    } else {
     }
   })
 
@@ -102,7 +101,7 @@ describe('agency referral code test', () => {
 
   it.concurrent('getAgent', async () => {
     const register = await publicClientSepolia.readContract({
-      ...prepareAgencyWhois(testChildSepolia.account.address),
+      ...prepareAgencyWhois(testClientSepolia.account.address),
       address: TEST_CONFIG.agency,
     })
     const result = await testClientSepolia.readContract({
