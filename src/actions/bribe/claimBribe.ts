@@ -5,7 +5,7 @@ import { prepareFunctionParams } from '@/utils/viem'
 
 export async function prepareClaimBribe(
   client: WalletClient,
-  args: { tokenList: Address[]; weekMatrix: string[][] },
+  args: { tokenList: Address[]; weekMatrix: bigint[][] },
 ) {
   const chain = client.chain
   if (!chain?.id) {

@@ -14,20 +14,17 @@ export default defineConfig({
     lib: {
       entry: {
         index: './src/index.ts',
-        actions: './src/actions',
-        constants: './src/constants',
-        reward: './src/reward',
+        constants: './src/constants/index.ts',
       },
       name: 'Dyson Interface SDK',
     },
     rollupOptions: {
-      external: ['buffer', 'viem'],
+      external: ['buffer', 'viem', 'lodash-es'],
     },
   },
   plugins: [
     dts({
-      exclude: ['**/errors/utils.ts', '**/dist/**', '**/*.test.ts', '**/_test/**'],
-      outDir: 'dist/types',
+      exclude: ['**/errors/utils.ts', '**/dist/**', '**/*.test.ts', '**/__test__/**'],
       rollupTypes: true,
     }),
   ],

@@ -68,3 +68,4 @@ export const cutInputToDecimal = (input: string, decimals?: number) => {
   const newInput = inputArray[0] + '.' + inputArray[1].slice(0, decimals)
   return newInput
 }
+export * from './getMediumGen'

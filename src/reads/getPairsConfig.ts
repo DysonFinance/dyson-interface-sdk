@@ -3,7 +3,6 @@ import { chunk } from 'lodash-es'
 import { Address, PublicClient } from 'viem'
 import { getAbiItem, multicall } from 'viem/contract'
 
-import { ChainId } from '@/constants'
 import FACTORY_ABI from '@/constants/abis/DysonSwapFactory'
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
 import { DysonPoolConfig } from '@/entities/dysonPair'

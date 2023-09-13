@@ -17,7 +17,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc -p ./tsconfig.lint.json && vite build",
     "clean": "rimraf ./dist",
     "test": "vitest run",
     "test:w": "vitest",
