@@ -69,3 +69,4 @@ export const cutInputToDecimal = (input: string, decimals?: number) => {
   return newInput
 }
 export * from './getMediumGen'
+export * from './rewardCooldown'

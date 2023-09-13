@@ -25,3 +25,11 @@ dist-ssr
 
 .env.*
 !.env.sample
+
+#start proxy package
+constants
+actions
+entities
+reads
+utils
+#end proxy package
