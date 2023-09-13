@@ -1,4 +1,3 @@
-import dedent from 'dedent'
 import { execa } from 'execa'
 import { default as fs } from 'fs-extra'
 import path from 'path'
@@ -40,8 +39,7 @@ export function getConfig({ noExport, ...options }: GetConfig): Options {
       if (typeof options.onSuccess === 'function') await options.onSuccess()
       else if (typeof options.onSuccess === 'string') execa(options.onSuccess)
 
-      const exports = await generateExports(options.entry!, noExport)
-      await generateProxyPackages(exports)
+      await generateExports(options.entry!, noExport)
     },
     ...options,
   }
@@ -77,51 +75,4 @@ async function generateExports(entry: Entry, noExport?: string[]) {
   await fs.writeFile('package.json', JSON.stringify(packageJson, null, 2) + '\n')
 
   return exports
-}
-
-/**
- * Generate proxy packages files for each export
- */
-async function generateProxyPackages(exports: Exports) {
-  const ignorePaths: string[] = []
-  const files = new Set<string>()
-  for (const [key, value] of Object.entries(exports)) {
-    if (typeof value === 'string') continue
-    if (key === '.') continue
-    if (!value.default) continue
-    await fs.ensureDir(key)
-    const entrypoint = path.posix.relative(key, value.default)
-    const fileExists = await fs.pathExists(value.default)
-    if (!fileExists)
-      throw new Error(`Proxy package "${key}" entrypoint "${entrypoint}" does not exist.`)
-
-    await fs.outputFile(
-      `${key}/package.json`,
-      dedent`{
-        "type": "module",
-        "main": "${entrypoint}"
-      }`,
-    )
-    ignorePaths.push(key.replace(/^\.\//g, ''))
-
-    const file = key.replace(/^\.\//g, '').split('/')[0]
-    if (!file || files.has(file)) continue
-    files.add(`/${file}`)
-  }
-
-  files.add('/dist')
-  const packageJson = await fs.readJSON('package.json')
-  packageJson.files = [...files.values()]
-  await fs.writeFile('package.json', JSON.stringify(packageJson, null, 2) + '\n')
-
-  if (ignorePaths.length === 0) return
-  const gitignore = fs.readFileSync('.gitignore', { encoding: 'utf-8' })
-  if (ignorePaths.every((name) => gitignore.includes(name))) return
-  await fs.outputFile(
-    '.gitignore.extra',
-    dedent`
-    # Generated file. Do not edit directly.
-    ${ignorePaths.join('/**\n')}/**
-  `,
-  )
 }
