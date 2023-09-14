@@ -14,12 +14,3 @@ export const WRAPPED_NATIVE_TOKEN = {
   [ChainId.FANTOM]: '',
   [ChainId.SEPOLIA]: TEST_CONFIG.wrappedNativeToken,
 }
-
-export const DYSON_PAIR_FACTORY: {
-  [chainId in ChainId]?: string
-} = {
-  [ChainId.MAINNET]: '',
-  [ChainId.POLYGON]: '',
-  [ChainId.FANTOM]: '',
-  [ChainId.SEPOLIA]: TEST_CONFIG.wrappedNativeToken,
-}

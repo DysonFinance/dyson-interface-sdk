@@ -1,5 +1,5 @@
 import { chunk, flatten, get, pick } from 'lodash-es'
-import { Address, multicall3Abi, parseAbi, PublicClient } from 'viem'
+import { Address, parseAbi, PublicClient } from 'viem'
 import { multicall } from 'viem/contract'
 
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
@@ -9,6 +9,10 @@ import { ReadContractParameters, readContractParameters } from '@/utils/viem'
 
 const erc20BalanceAbi = parseAbi([
   'function balanceOf(address account) view returns (uint256)',
+] as const)
+
+const currentBlockTimeAbi = parseAbi([
+  'function getCurrentBlockTimestamp() view returns (uint256)',
 ] as const)
 
 const AddressZero = '0x0000000000000000000000000000000000000000'
@@ -54,7 +58,7 @@ function farmGaugeContract(farmAddress: Address, pairAddress: Address) {
 function multicall3CurrentContract(client: PublicClient) {
   return {
     address: get(client, 'chain.contracts.multicall3.address')!,
-    abi: multicall3Abi,
+    abi: currentBlockTimeAbi,
     functionName: 'getCurrentBlockTimestamp',
   }
 }
@@ -86,8 +90,8 @@ export async function getDysonPairInfos(
     callContractList.push(pairAttributeContract(pairAddress, 'getFeeRatio'))
     callContractList.push(pairAttributeContract(pairAddress, 'halfLife'))
     callContractList.push(pairNoteCountContract(pairAddress, account))
-    callContractList.push(tokenBalanceContract(token0Address, account))
-    callContractList.push(tokenBalanceContract(token1Address, account))
+    callContractList.push(tokenBalanceContract(token0Address, pairAddress))
+    callContractList.push(tokenBalanceContract(token1Address, pairAddress))
     callContractList.push(farmGaugeContract(farmAddress, pairAddress))
 
     return callContractList
@@ -107,7 +111,7 @@ export async function getDysonPairInfos(
   pairDataMatrix.map((pairDateArray, index) => {
     const [basis, feeStored, halfLife, noteCount, token0Amount, token1Amount, pool] =
       pairDateArray
-
+    const poolArray = pool as any[]
     const { pairAddress, token0Address, token1Address } = pairConfigs[index]
     const [feeRatio0, feeRatio1] = feeStored as any
 
@@ -122,14 +126,14 @@ export async function getDysonPairInfos(
       token0Amount: token0Amount as bigint,
       token1Amount: token1Amount as bigint,
       noteCount: account ? Number(noteCount as bigint) : undefined,
-      farmPoolInfo: pick(pool as any, [
-        'weight',
-        'rewardRate',
-        'lastUpdateTime',
-        'lastReserve',
-        'gauge',
-        'isPool',
-      ]),
+      farmPoolInfo: {
+        weight: poolArray[0],
+        rewardRate: poolArray[1],
+        lastUpdateTime: poolArray[2],
+        lastReserve: poolArray[3],
+        gauge: poolArray[4],
+      },
+
       timeStamp0: Number(blockTime),
       timeStamp1: Number(blockTime),
     })

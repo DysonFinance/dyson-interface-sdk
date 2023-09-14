@@ -1,5 +1,5 @@
-import { Address } from 'abitype'
 import { flatten } from 'lodash-es'
+import type { Address } from 'viem'
 import { PublicClient } from 'viem'
 import { multicall } from 'viem/actions'
 
@@ -43,12 +43,11 @@ export async function getAccountNotes(
     return noteContractList
   })
 
-  const pairsNoteData = await multicall(client, {
+  const pairsNoteData = (await multicall(client, {
     ...readContractParameters(args),
     allowFailure: false,
     contracts: flatten(noteContractMatrix),
-  })
-
+  })) as any[]
   const dysonPairNotes: IDysonPairNotes = {}
 
   for (let i = 0; i < pairAddresses.length; i++) {
@@ -57,13 +56,14 @@ export async function getAccountNotes(
       continue
     }
     const notesData = pairsNoteData.splice(0, noteCount)
+
     const pairAddress = pairAddresses[i]
     dysonPairNotes[pairAddress] = {}
     notesData.forEach((dataArray, index) => {
       const [token0Amt, token1Amt, due] = dataArray as any
       const token0AmtBigNumber = token0Amt as bigint
       const token1AmtBigNumber = token1Amt as bigint
-      if (token0AmtBigNumber > 0) {
+      if (token0AmtBigNumber < 0) {
         return
       }
       dysonPairNotes[pairAddress][index] = {
@@ -75,7 +75,5 @@ export async function getAccountNotes(
     })
   }
 
-  return {
-    dysonPairNotes,
-  }
+  return dysonPairNotes
 }
