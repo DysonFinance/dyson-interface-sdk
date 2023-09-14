@@ -20,5 +20,11 @@ export interface PoolStruct {
   lastUpdateTime: bigint
   lastReserve: bigint
   gauge: string
-  isPool: boolean
+  isPool?: boolean
+}
+
+export interface DysonPoolConfig {
+  pairAddress: `0x${string}`
+  token0Address: `0x${string}`
+  token1Address: `0x${string}`
 }

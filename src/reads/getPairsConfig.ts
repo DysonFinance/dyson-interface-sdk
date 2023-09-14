@@ -1,16 +1,21 @@
 import { flatten } from 'lodash-es'
+import { chunk } from 'lodash-es'
 import { Address, PublicClient } from 'viem'
 import { getAbiItem, multicall } from 'viem/contract'
 
 import { ChainId } from '@/constants'
 import FACTORY_ABI from '@/constants/abis/DysonSwapFactory'
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
-import { DYSON_PAIR_FACTORY } from '@/constants/addresses'
+import { DysonPoolConfig } from '@/entities/dysonPair'
 import {
   prepareFunctionParams,
   ReadContractParameters,
   readContractParameters,
 } from '@/utils/viem'
+
+type DysonConfigMapType = {
+  [contractAddress: string]: DysonPoolConfig
+}
 
 export function preparePairLengths() {
   return prepareFunctionParams({
@@ -38,15 +43,15 @@ function pairTokenAddressesContract(pairAddress: Address, tokenIndex: number) {
 
 export async function getPairsConfig(
   client: PublicClient,
-  args: ReadContractParameters<{ pairLength: number }>,
+  args: ReadContractParameters<{ pairLength: number; factoryAddress: Address }>,
 ) {
   const chain = client.chain
-  if (!chain?.id || !DYSON_PAIR_FACTORY?.[chain.id as ChainId]) {
+  const { factoryAddress } = args
+  if (!chain?.id || !factoryAddress) {
     throw new Error('Chain Id on wallet client is empty')
   }
 
-  const factoryAddress = DYSON_PAIR_FACTORY[chain.id as ChainId] as Address
-  let arr = new Array(args.pairLength)
+  let arr = new Array(args.pairLength).fill(undefined)
 
   const pairAddresses = (await multicall(client, {
     ...readContractParameters(args),
@@ -65,8 +70,17 @@ export async function getPairsConfig(
     ),
   })) as Address[]
 
-  return {
-    pairAddresses,
-    tokenAddresses,
-  }
+  const dysonPoolConfigMap: DysonConfigMapType = {}
+  const tokenChunks = chunk(tokenAddresses, 2)
+  tokenChunks.map((tokenArray, index) => {
+    const [token0Address, token1Address] = tokenArray
+    const pairAddress = pairAddresses[index]
+    dysonPoolConfigMap[pairAddress] = {
+      token0Address: token0Address as Address,
+      token1Address: token1Address as Address,
+      pairAddress,
+    }
+  })
+
+  return dysonPoolConfigMap
 }
