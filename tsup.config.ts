@@ -22,7 +22,7 @@ export default defineConfig(
     splitting: true,
     target: 'es2021',
 
-    dts: true
+    dts: true,
   }),
 )
 

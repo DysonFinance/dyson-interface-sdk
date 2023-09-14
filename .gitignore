@@ -26,8 +26,8 @@ dist-ssr
 .env.*
 !.env.sample
 
-actions/**
-constants/**
-entities/**
-reads/**
-utils/**
+/actions
+/constants
+/entities
+/reads
+/utils
