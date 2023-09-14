@@ -2,17 +2,17 @@ import { TEST_CONFIG } from '@tests/config'
 import { testChildSepolia, testClientSepolia } from '@tests/utils'
 import { expect, test } from 'vitest'
 
-import { prepareAgencyWhois } from './getAgencyWhois'
+import { getAgencyWhois } from './getAgencyWhois'
 
 test.concurrent('agent whois', async () => {
   const [parentAgent, childAgent] = await testClientSepolia.multicall({
     contracts: [
       {
-        ...prepareAgencyWhois(testClientSepolia.account.address),
+        ...getAgencyWhois(testClientSepolia.account.address),
         address: TEST_CONFIG.agency,
       },
       {
-        ...prepareAgencyWhois(testChildSepolia.account.address),
+        ...getAgencyWhois(testChildSepolia.account.address),
         address: TEST_CONFIG.agency,
       },
     ],

@@ -87,6 +87,6 @@
     "lodash-es": "^4.17.21"
   },
   "peerDependencies": {
-    "viem": "^1.10.9"
+    "viem": "^1.10.13"
   }
 }

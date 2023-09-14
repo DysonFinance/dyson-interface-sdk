@@ -8,8 +8,8 @@ import {
 import { describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
-import { prepareGetAgent } from '@/reads/getAgencyInfo'
-import { prepareAgencyWhois } from '@/reads/getAgencyWhois'
+import { getAgentInfo } from '@/reads/getAgencyInfo'
+import { getAgencyWhois } from '@/reads/getAgencyWhois'
 
 import { signReferral } from './generateReferral'
 import { buildReferralCode } from './referralCode'
@@ -92,7 +92,7 @@ describe.concurrent('agency referral code test', () => {
     })
 
     const register = await publicClientSepolia.readContract({
-      ...prepareAgencyWhois(testChildSepolia.account.address),
+      ...getAgencyWhois(testChildSepolia.account.address),
       address: TEST_CONFIG.agency,
     })
 
@@ -101,11 +101,11 @@ describe.concurrent('agency referral code test', () => {
 
   it.concurrent('getAgent', async () => {
     const register = await publicClientSepolia.readContract({
-      ...prepareAgencyWhois(testClientSepolia.account.address),
+      ...getAgencyWhois(testClientSepolia.account.address),
       address: TEST_CONFIG.agency,
     })
     const result = await testClientSepolia.readContract({
-      ...prepareGetAgent(register),
+      ...getAgentInfo(register),
       address: TEST_CONFIG.agency,
     })
 
