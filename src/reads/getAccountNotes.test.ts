@@ -43,6 +43,7 @@ describe('fetching account notes test', () => {
         tokenIn: samplePair.token0Address as Address,
         tokenOut: samplePair.token1Address as Address,
         addressTo: testClientSepolia.account.address,
+        wrappedNativeToken: TEST_CONFIG.wrappedNativeToken as Address,
         inputBigNumber: 100000n,
         minOutput: 0n,
         duration: TimeUnits.Day,
