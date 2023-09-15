@@ -7,7 +7,7 @@ import { getDysonPairInfos } from './getDysonPairInfos'
 import { getPairsConfig, preparePairLengths } from './getPairsConfig'
 
 describe('fetching dyson pair test', () => {
-  it.concurrent('fetch dyson pair', async () => {
+  it('fetch dyson pair', async () => {
     const pairLength = await testClientSepolia.readContract({
       ...preparePairLengths(),
       address: TEST_CONFIG.pairFactory,

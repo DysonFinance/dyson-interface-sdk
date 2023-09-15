@@ -9,7 +9,7 @@ const test = {
   deadline: Math.floor(Date.now() / 1000 + TimeUnits.Day),
 }
 
-describe.concurrent('referralCode', () => {
+describe('referralCode', () => {
   it('buildReferralCode can be decode by parseReferralCode', () => {
     const referralCode = buildReferralCode(test)
     const parsed = parseReferralCode(referralCode)

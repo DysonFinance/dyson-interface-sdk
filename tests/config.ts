@@ -13,12 +13,12 @@ export interface IMainAddressesConfig {
   agency: Address
   dyson: Address
   sDyson: Address
-  pairFactory: string
-  router: string
-  farm: string
-  wrappedNativeToken: string
-  tokens: { [baseToken in PoolTokenType]?: string }
-  baseTokenPair: { [baseToken in PoolTokenType]?: string }
+  pairFactory: Address
+  router: Address
+  farm: Address
+  wrappedNativeToken: Address
+  tokens: { [baseToken in PoolTokenType]?: Address }
+  baseTokenPair: { [baseToken in PoolTokenType]?: Address }
 }
 
 export const TEST_CONFIG: IMainAddressesConfig = JSON.parse(

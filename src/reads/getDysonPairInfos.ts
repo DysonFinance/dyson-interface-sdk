@@ -1,4 +1,4 @@
-import { chunk, flatten, get, pick } from 'lodash-es'
+import { chunk, flatten, get } from 'lodash-es'
 import { Address, parseAbi, PublicClient } from 'viem'
 import { multicall } from 'viem/contract'
 

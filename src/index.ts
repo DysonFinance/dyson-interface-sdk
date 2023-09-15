@@ -1,2 +1,3 @@
+import * as Entities from './entities'
 import * as Utils from './utils'
-export { Utils }
+export { Entities, Utils }

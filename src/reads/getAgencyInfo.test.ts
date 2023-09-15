@@ -2,12 +2,12 @@ import { TEST_CONFIG } from '@tests/config'
 import { testClientSepolia } from '@tests/utils'
 import { expect, test } from 'vitest'
 
-import { prepareAgencyInfo } from './getAgencyInfo'
+import { getAgencyReferrerGenInfo } from './getAgencyInfo'
 
-test.concurrent('agent info', async () => {
+test('agent info', async () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, gen] = await testClientSepolia.readContract({
-    ...prepareAgencyInfo(testClientSepolia.account.address),
+    ...getAgencyReferrerGenInfo(testClientSepolia.account.address),
     address: TEST_CONFIG.agency,
   })
 

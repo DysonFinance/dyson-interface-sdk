@@ -8,16 +8,18 @@ export async function prepareApproveToken(
   args: { spenderAddress: Address; allowance: bigint },
 ) {
   const chain = client.chain
-  if (!chain?.id) {
-    throw new Error('Chain Id on wallet client is empty')
-  }
+  const enabled = !!chain?.id
+
   const { spenderAddress, allowance } = args
 
-  return prepareFunctionParams({
-    abi: getAbiItem({
-      abi: ERC20_ABI,
-      name: 'approve',
+  return {
+    ...prepareFunctionParams({
+      abi: getAbiItem({
+        abi: ERC20_ABI,
+        name: 'approve',
+      }),
+      args: [spenderAddress, allowance],
     }),
-    args: [spenderAddress, allowance],
-  })
+    enabled,
+  } as const
 }

@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer'
 export function atob(data: string) {
   if (typeof window !== 'undefined') {
     return window.atob.call(null, data)

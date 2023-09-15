@@ -7,7 +7,7 @@ import { TimeUnits } from '@/constants'
 import Dyson from '@/constants/abis/Dyson'
 import { getVaultCount, getVaults } from '@/reads/getStakingVault'
 
-import { prepareUnstake } from './redeem'
+import { getUnstakeGasFee, prepareUnstake } from './redeem'
 import { prepareRestake } from './restake'
 import { getStakeGasFee, prepareStake } from './stake'
 
@@ -35,16 +35,20 @@ describe('sdysn test', () => {
     await sendTestTransaction({
       network: 'sepolia',
       ...{
-        ...prepareStake(testClientSepolia.account.address, lockDYSN, 30 * TimeUnits.Day),
+        ...prepareStake({
+          to: testClientSepolia.account.address,
+          tokenAmount: lockDYSN,
+          stakeTime: 30 * TimeUnits.Day,
+        }),
         address: TEST_CONFIG.sDyson,
-        gas: await getStakeGasFee(
-          testClientSepolia,
-          TEST_CONFIG.sDyson,
-          testClientSepolia.account.address,
-          testClientSepolia.account.address,
-          lockDYSN,
-          30 * TimeUnits.Day,
-        ),
+        gas: await getStakeGasFee({
+          client: testClientSepolia,
+          contractAddress: TEST_CONFIG.sDyson,
+          userAddress: testClientSepolia.account.address,
+          to: testClientSepolia.account.address,
+          tokenAmount: lockDYSN,
+          stakeTime: 30 * TimeUnits.Day,
+        }),
         account: testClientSepolia.account,
       },
     })
@@ -60,7 +64,11 @@ describe('sdysn test', () => {
   const appendingLock = 50n
   it('restake', async () => {
     await sendTestTransaction({
-      ...prepareRestake(Number(savedAmount) - 1, appendingLock, 30 * TimeUnits.Day + 10),
+      ...prepareRestake({
+        index: Number(savedAmount) - 1,
+        tokenAmount: appendingLock,
+        stakeTime: 30 * TimeUnits.Day + 10,
+      }),
       account: testClientSepolia.account,
       address: TEST_CONFIG.sDyson,
       network: 'sepolia',
@@ -81,12 +89,19 @@ describe('sdysn test', () => {
     await testClientSepolia.mine({
       blocks: 1,
     })
+    const args = {
+      to: testClientSepolia.account.address,
+      index: Number(savedAmount) - 1,
+      sDYSNAmount: vaults[Number(savedAmount) - 1].result![1],
+    }
     await sendTestTransaction({
-      ...prepareUnstake(
-        testClientSepolia.account.address,
-        Number(savedAmount) - 1,
-        vaults[Number(savedAmount) - 1].result![1],
-      ),
+      ...prepareUnstake(args),
+      gas: await getUnstakeGasFee({
+        client: testClientSepolia,
+        ...args,
+        contractAddress: TEST_CONFIG.sDyson,
+        userAddress: testClientSepolia.account.address,
+      }),
       account: testClientSepolia.account,
       address: TEST_CONFIG.sDyson,
       network: 'sepolia',
