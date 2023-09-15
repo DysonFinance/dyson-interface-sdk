@@ -4,7 +4,7 @@ import { TEST_CHAIN_ID, TEST_JSON_RPC, TEST_MENOMIC } from './config'
 export default async function () {
   const proxy = await startProxy({
     port: 8545,
-    pool: createPool({ instanceLimit: 5 }),
+    pool: createPool({ instanceLimit: 10 }),
     options: {
       chainId: TEST_CHAIN_ID,
       timeout: 1_00_0000,
