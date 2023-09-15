@@ -21,7 +21,7 @@ import {
   VerifyErrorOption,
 } from './register'
 
-describe.concurrent('agency referral code test', () => {
+describe('agency referral code test', () => {
   it.concurrent('create code and verify', async () => {
     const result = await signReferral(
       testClientSepolia,

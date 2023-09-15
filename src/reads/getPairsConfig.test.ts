@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { getPairsConfig, preparePairLengths } from './getPairsConfig'
 
-describe('fetching pair configs test', () => {
+describe.concurrent('fetching pair configs test', () => {
   it.concurrent('fetching pair length', async () => {
     const pairLength = await testClientSepolia.readContract({
       ...preparePairLengths(),

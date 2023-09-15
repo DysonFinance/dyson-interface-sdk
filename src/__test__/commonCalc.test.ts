@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { sqrt } from '@/calculations/commonCalc'
 
-describe('common calc test', () => {
+describe.concurrent('common calc test', () => {
   it('Sqrt normally', () => {
     expect(sqrt(4n)).eq(2n)
     expect(sqrt(16n)).eq(4n)

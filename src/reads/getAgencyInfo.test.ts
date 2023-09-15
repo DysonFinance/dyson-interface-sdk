@@ -4,7 +4,7 @@ import { expect, test } from 'vitest'
 
 import { getAgencyReferrerGenInfo } from './getAgencyInfo'
 
-test.concurrent('agent info', async () => {
+test('agent info', async () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, gen] = await testClientSepolia.readContract({
     ...getAgencyReferrerGenInfo(testClientSepolia.account.address),
