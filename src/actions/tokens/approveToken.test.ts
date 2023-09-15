@@ -10,17 +10,13 @@ import { prepareApproveToken } from './approveToken'
 describe('approve token test', () => {
   it.concurrent('approve usdc', async () => {
     const targetAllowance = 10000000000000000000000000000n
-    const { request: approveRequest } = await testClientSepolia.simulateContract({
-      ...(await prepareApproveToken(testClientSepolia, {
+    const approveResult = await sendTestTransaction({
+      ...prepareApproveToken(testClientSepolia, {
         allowance: targetAllowance,
         spenderAddress: TEST_CONFIG.router as Address,
-      })),
+      }),
       address: TEST_CONFIG.tokens.USDC as Address,
       account: testClientSepolia.account,
-    })
-
-    const approveResult = await sendTestTransaction({
-      ...approveRequest,
       network: 'sepolia',
     })
 

@@ -12,17 +12,13 @@ import { prepareNoteWithdraw } from './noteWithdraw'
 
 describe('dual investment test', () => {
   beforeAll(async () => {
-    const { request: approveRequest } = await testClientSepolia.simulateContract({
-      ...(await prepareApproveToken(testClientSepolia, {
+    const approveResult = await sendTestTransaction({
+      ...prepareApproveToken(testClientSepolia, {
         allowance: 10000000000000000000000000000n,
         spenderAddress: TEST_CONFIG.router as Address,
-      })),
+      }),
       address: TEST_CONFIG.tokens.USDC as Address,
       account: testClientSepolia.account,
-    })
-
-    const approveResult = await sendTestTransaction({
-      ...approveRequest,
       network: 'sepolia',
     })
 
@@ -40,8 +36,8 @@ describe('dual investment test', () => {
       .map((v) => v.token1Amount)
       .filter((bn) => bn > 0).length
 
-    const { request } = await testClientSepolia.simulateContract({
-      ...(await prepareInvestmentDeposit(testClientSepolia, {
+    const depositResult = await sendTestTransaction({
+      ...prepareInvestmentDeposit(testClientSepolia, {
         tokenIn: TEST_CONFIG.tokens.USDC as Address,
         tokenOut: TEST_CONFIG.dyson as Address,
         addressTo: testClientSepolia.account.address,
@@ -49,12 +45,9 @@ describe('dual investment test', () => {
         inputBigNumber: 100000n,
         minOutput: 0n,
         duration: TimeUnits.Day,
-      })),
+      }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-    })
-    const depositResult = await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 
@@ -74,8 +67,8 @@ describe('dual investment test', () => {
   })
 
   it('withdraw pool', async () => {
-    const { request } = await testClientSepolia.simulateContract({
-      ...(await prepareInvestmentDeposit(testClientSepolia, {
+    const depositResult = await sendTestTransaction({
+      ...prepareInvestmentDeposit(testClientSepolia, {
         tokenIn: TEST_CONFIG.tokens.USDC as Address,
         tokenOut: TEST_CONFIG.tokens.WBTC as Address,
         addressTo: testClientSepolia.account.address,
@@ -83,12 +76,9 @@ describe('dual investment test', () => {
         inputBigNumber: 200000n,
         minOutput: 0n,
         duration: TimeUnits.Day,
-      })),
+      }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-    })
-    const depositResult = await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 
@@ -114,7 +104,7 @@ describe('dual investment test', () => {
       blocks: 1,
     })
 
-    const { request: withdrawRequest } = await testClientSepolia.simulateContract({
+    const withdrawResult = await sendTestTransaction({
       ...(await prepareNoteWithdraw(testClientSepolia, {
         isNativePool: false,
         noteIndex: latestNote.noteIndex,
@@ -124,9 +114,6 @@ describe('dual investment test', () => {
       })),
       address: TEST_CONFIG.baseTokenPair.WBTC,
       account: testClientSepolia.account,
-    })
-    const withdrawResult = await sendTestTransaction({
-      ...withdrawRequest,
       network: 'sepolia',
     })
 
@@ -134,8 +121,8 @@ describe('dual investment test', () => {
   })
 
   it('withdraw ETH pool', async () => {
-    const { request } = await testClientSepolia.simulateContract({
-      ...(await prepareInvestmentDeposit(testClientSepolia, {
+    const depositResult = await sendTestTransaction({
+      ...prepareInvestmentDeposit(testClientSepolia, {
         tokenIn: TEST_CONFIG.tokens.USDC as Address,
         tokenOut: TEST_CONFIG.tokens.WETH as Address,
         addressTo: testClientSepolia.account.address,
@@ -143,13 +130,9 @@ describe('dual investment test', () => {
         inputBigNumber: 100000n,
         minOutput: 0n,
         duration: TimeUnits.Day,
-      })),
+      }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-    })
-
-    const depositResult = await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 
@@ -174,7 +157,7 @@ describe('dual investment test', () => {
       blocks: 1,
     })
 
-    const { request: withdrawRequest } = await testClientSepolia.simulateContract({
+    const withdrawResult = await sendTestTransaction({
       ...(await prepareNoteWithdraw(testClientSepolia, {
         isNativePool: true,
         noteIndex: latestNote.noteIndex,
@@ -184,9 +167,6 @@ describe('dual investment test', () => {
       })),
       address: TEST_CONFIG.router as Address,
       account: testClientSepolia.account,
-    })
-    const withdrawResult = await sendTestTransaction({
-      ...withdrawRequest,
       network: 'sepolia',
     })
 
@@ -194,8 +174,8 @@ describe('dual investment test', () => {
   })
 
   it('withdraw ETH pool2', async () => {
-    const { request } = await testClientSepolia.simulateContract({
-      ...(await prepareInvestmentDeposit(testClientSepolia, {
+    const depositResult = await sendTestTransaction({
+      ...prepareInvestmentDeposit(testClientSepolia, {
         tokenIn: TEST_CONFIG.tokens.WETH as Address,
         tokenOut: TEST_CONFIG.tokens.USDC as Address,
         addressTo: testClientSepolia.account.address,
@@ -203,13 +183,9 @@ describe('dual investment test', () => {
         inputBigNumber: 15000000000000n,
         minOutput: 0n,
         duration: TimeUnits.Day,
-      })),
+      }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-    })
-
-    const depositResult = await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 
@@ -235,7 +211,7 @@ describe('dual investment test', () => {
       blocks: 1,
     })
 
-    const { request: withdrawRequest } = await testClientSepolia.simulateContract({
+    const withdrawResult = await sendTestTransaction({
       ...(await prepareNoteWithdraw(testClientSepolia, {
         isNativePool: true,
         noteIndex: latestNote.noteIndex,
@@ -245,9 +221,6 @@ describe('dual investment test', () => {
       })),
       address: TEST_CONFIG.router as Address,
       account: testClientSepolia.account,
-    })
-    const withdrawResult = await sendTestTransaction({
-      ...withdrawRequest,
       network: 'sepolia',
     })
 

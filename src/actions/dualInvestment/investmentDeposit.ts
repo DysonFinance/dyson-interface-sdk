@@ -4,10 +4,7 @@ import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { IDepositParams } from '@/constants/investment'
 import { prepareFunctionParams } from '@/utils/viem'
 
-export async function prepareInvestmentDeposit(
-  client: WalletClient,
-  args: IDepositParams,
-) {
+export function prepareInvestmentDeposit(client: WalletClient, args: IDepositParams) {
   const chain = client.chain
   if (!chain?.id || !args.wrappedNativeToken) {
     throw new Error('Chain Id on wallet client is empty')

@@ -38,8 +38,8 @@ describe('fetching account notes test', () => {
       pairAddresses: [samplePair.pairAddress as Address],
     })
 
-    const { request } = await testClientSepolia.simulateContract({
-      ...(await prepareInvestmentDeposit(testClientSepolia, {
+    const depositResult = await sendTestTransaction({
+      ...prepareInvestmentDeposit(testClientSepolia, {
         tokenIn: samplePair.token0Address as Address,
         tokenOut: samplePair.token1Address as Address,
         addressTo: testClientSepolia.account.address,
@@ -47,12 +47,9 @@ describe('fetching account notes test', () => {
         inputBigNumber: 100000n,
         minOutput: 0n,
         duration: TimeUnits.Day,
-      })),
+      }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-    })
-    const depositResult = await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 

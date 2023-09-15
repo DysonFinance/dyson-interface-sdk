@@ -7,17 +7,13 @@ import { getPairAllowanceMap, prepareTokenAllowance } from './getTokenAllowance'
 
 describe.concurrent('fetching token allowance', () => {
   // beforeAll(async () => {
-  //   const { request: approveRequest } = await testClientSepolia.simulateContract({
-  //     ...(await prepareApproveToken(testClientSepolia, {
+  //   const approveResult = await sendTestTransaction({
+  //     ...prepareApproveToken(testClientSepolia, {
   //       allowance: 10000000000000000000000000000n,
   //       spenderAddress: TEST_CONFIG.router as Address,
-  //     })),
+  //     }),
   //     address: TEST_CONFIG.tokens.USDC as Address,
   //     account: testClientSepolia.account,
-  //   })
-
-  //   const approveResult = await sendTestTransaction({
-  //     ...approveRequest,
   //     network: 'sepolia',
   //   })
 

@@ -10,17 +10,13 @@ import { prepareDexSwap } from './dexSwap'
 
 describe('dex test', () => {
   beforeAll(async () => {
-    const { request: approveRequest } = await testClientSepolia.simulateContract({
-      ...(await prepareApproveToken(testClientSepolia, {
+    const approveResult = await sendTestTransaction({
+      ...prepareApproveToken(testClientSepolia, {
         allowance: 10000000000000000000000000000n,
         spenderAddress: TEST_CONFIG.router as Address,
-      })),
+      }),
       address: TEST_CONFIG.tokens.USDC as Address,
       account: testClientSepolia.account,
-    })
-
-    const approveResult = await sendTestTransaction({
-      ...approveRequest,
       network: 'sepolia',
     })
 
@@ -37,20 +33,17 @@ describe('dex test', () => {
 
     const swapInput = 100000n
 
-    const { request } = await testClientSepolia.simulateContract({
-      ...(await prepareDexSwap(testClientSepolia, {
+    const swapResult = await sendTestTransaction({
+      ...prepareDexSwap(testClientSepolia, {
         tokenIn: TEST_CONFIG.tokens.USDC as Address,
         tokenOut: TEST_CONFIG.dyson as Address,
         addressTo: testClientSepolia.account.address,
         wrappedNativeToken: TEST_CONFIG.wrappedNativeToken as Address,
         inputBigNumber: swapInput,
         minOutput: 0n,
-      })),
+      }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-    })
-    const swapResult = await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 
@@ -73,20 +66,17 @@ describe('dex test', () => {
 
     const swapInput = 100000n
 
-    const { request } = await testClientSepolia.simulateContract({
-      ...(await prepareDexSwap(testClientSepolia, {
+    const swapResult = await sendTestTransaction({
+      ...prepareDexSwap(testClientSepolia, {
         tokenIn: TEST_CONFIG.tokens.WETH as Address,
         tokenOut: TEST_CONFIG.tokens.USDC as Address,
         addressTo: testClientSepolia.account.address,
         wrappedNativeToken: TEST_CONFIG.wrappedNativeToken as Address,
         inputBigNumber: swapInput,
         minOutput: 0n,
-      })),
+      }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-    })
-    const swapResult = await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 

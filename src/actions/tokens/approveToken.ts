@@ -3,7 +3,7 @@ import { Address, getAbiItem, WalletClient } from 'viem'
 import ERC20_ABI from '@/constants/abis/erc20'
 import { prepareFunctionParams } from '@/utils/viem'
 
-export async function prepareApproveToken(
+export function prepareApproveToken(
   client: WalletClient,
   args: { spenderAddress: Address; allowance: bigint },
 ) {
