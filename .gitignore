@@ -31,3 +31,5 @@ dist-ssr
 /entities
 /reads
 /utils
+# Generated file. Do not edit directly.
+/constants/abis/**
