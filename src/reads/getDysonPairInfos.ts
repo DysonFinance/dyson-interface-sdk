@@ -3,9 +3,10 @@ import { Address, parseAbi, PublicClient } from 'viem'
 import { multicall } from 'viem/contract'
 
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
-import FARM_ABI from '@/constants/abis/Farm'
 import { DysonPair } from '@/entities/dysonPair'
 import { ReadContractParameters, readContractParameters } from '@/utils/viem'
+
+import { prepareGaugeInfos } from './getGaugeInfo'
 
 const erc20BalanceAbi = parseAbi([
   'function balanceOf(address account) view returns (uint256)',
@@ -49,9 +50,7 @@ function tokenBalanceContract(tokenAddress: Address, account: Address) {
 function farmGaugeContract(farmAddress: Address, pairAddress: Address) {
   return {
     address: farmAddress,
-    abi: FARM_ABI,
-    functionName: 'pools',
-    args: [pairAddress],
+    ...prepareGaugeInfos(pairAddress),
   }
 }
 

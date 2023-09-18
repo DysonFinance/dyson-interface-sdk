@@ -15,11 +15,6 @@ const erc20AllowanceAbi = parseAbi([
 export interface ITokenAllowanceMap {
   [allowancePair: string]: AllowanceData
 }
-
-export interface ITokenPureAllowanceMap {
-  [allowancePair: string]: bigint
-}
-
 export interface AllowanceData extends AllowancePair {
   allowance?: bigint
 }
@@ -39,9 +34,7 @@ export function prepareTokenAllowance(owner: Address, spender: Address) {
 function tokenAllowanceContract(tokenAddress: Address, owner: Address, spender: Address) {
   return {
     address: tokenAddress,
-    abi: erc20AllowanceAbi,
-    functionName: 'allowance',
-    args: [owner, spender],
+    ...prepareTokenAllowance(owner, spender),
   }
 }
 
