@@ -12,10 +12,12 @@ export type PrepareFunctionParamsReturnType<TFunction extends AbiFunction> = {
 export function prepareFunctionParams<TFunction extends AbiFunction>({
   abi,
   args,
+  value,
 }: PresetAbiFnParamsArgs<TFunction>): PrepareFunctionParamsReturnType<TFunction> {
   return {
     functionName: abi.name,
     abi: [abi],
+    value,
     ...(args !== undefined ? { args } : {}),
   } as PrepareFunctionParamsReturnType<TFunction>
 }

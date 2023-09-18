@@ -1,22 +1,18 @@
 import { getAbiItem, WalletClient } from 'viem'
 
-import { ChainId } from '@/constants'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
-import { WRAPPED_NATIVE_TOKEN } from '@/constants/addresses'
 import { ISwapParams } from '@/constants/dex'
 import { prepareFunctionParams } from '@/utils/viem'
 
-export async function prepareDexSwap(client: WalletClient, args: ISwapParams) {
+export function prepareDexSwap(client: WalletClient, args: ISwapParams) {
   const chain = client.chain
-  if (!chain?.id || !WRAPPED_NATIVE_TOKEN[chain.id as ChainId]) {
+  if (!chain?.id || !args.wrappedNativeToken) {
     throw new Error('Chain Id on wallet client is empty')
   }
   const { addressTo, inputBigNumber, minOutput, tokenIn, tokenOut } = args
 
-  const isInNative =
-    tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chain.id as ChainId].toLowerCase()
-  const isOutNative =
-    tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chain.id as ChainId].toLowerCase()
+  const isInNative = tokenIn.toLowerCase() === args.wrappedNativeToken.toLowerCase()
+  const isOutNative = tokenOut.toLowerCase() === args.wrappedNativeToken.toLowerCase()
 
   if (isInNative) {
     return prepareFunctionParams({
@@ -25,6 +21,7 @@ export async function prepareDexSwap(client: WalletClient, args: ISwapParams) {
         name: 'swapETHIn',
       }),
       args: [tokenOut, BigInt(1), addressTo, minOutput],
+      value: inputBigNumber,
     })
   }
   if (isOutNative) {

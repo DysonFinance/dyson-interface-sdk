@@ -3,7 +3,6 @@ import { Address, getAbiItem, WalletClient } from 'viem'
 import { ChainId } from '@/constants'
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
-import { ROUTER_ADDRESS } from '@/constants/addresses'
 import { prepareFunctionParams } from '@/utils/viem'
 
 export function getWithdrawNoteTypedData(
@@ -46,21 +45,22 @@ export async function prepareNoteWithdraw(
     noteIndex: number
     pairAddress: `0x${string}`
     addressTo: `0x${string}`
+    routerAddress: `0x${string}`
   },
 ) {
   const chain = client.chain
-  if (!chain?.id || !ROUTER_ADDRESS[chain.id as ChainId]) {
+  if (!chain?.id || !args.routerAddress) {
     throw new Error('Chain Id on wallet client is empty')
   }
 
-  const { isNativePool, noteIndex, pairAddress, addressTo } = args
+  const { isNativePool, noteIndex, pairAddress, addressTo, routerAddress } = args
 
   if (isNativePool) {
     const sigTypeData = getWithdrawNoteTypedData(
       chain.id,
       pairAddress,
       noteIndex,
-      ROUTER_ADDRESS[chain.id as ChainId],
+      routerAddress,
     )
 
     const withdrawSig = await client.signTypedData({
