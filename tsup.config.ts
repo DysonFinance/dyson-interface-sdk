@@ -16,6 +16,7 @@ export default defineConfig(
       'src/entities/index.ts',
       'src/reads/index.ts',
       'src/utils/index.ts',
+      'src/constants/abis/index.ts',
     ],
     external: [...Object.keys(dependencies), ...Object.keys(peerDependencies)],
 
