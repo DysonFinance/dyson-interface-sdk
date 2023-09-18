@@ -19,6 +19,7 @@ export interface IMainAddressesConfig {
   wrappedNativeToken: Address
   tokens: { [baseToken in PoolTokenType]?: Address }
   baseTokenPair: { [baseToken in PoolTokenType]?: Address }
+  bribeSample: Address
 }
 
 export const TEST_CONFIG: IMainAddressesConfig = JSON.parse(
