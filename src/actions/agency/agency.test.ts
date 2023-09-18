@@ -10,12 +10,12 @@ import { describe, expect, it } from 'vitest'
 import { TimeUnits } from '@/constants'
 import { getAgentInfo } from '@/reads/getAgencyInfo'
 import { getAgencyWhois } from '@/reads/getAgencyWhois'
+import { getReferralCodeUsed } from '@/reads/getReferralCodeUsed'
 
 import { signReferral } from './generateReferral'
 import { buildReferralCode } from './referralCode'
 import {
   isReferral,
-  prepareOneTimeCodes,
   prepareRegister,
   validateReferral,
   VerifyErrorOption,
@@ -60,11 +60,12 @@ describe('agency referral code test', () => {
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
-
-    const [oneTimeCode] = await testClientSepolia.multicall({
-      contracts: prepareOneTimeCodes([result.onceAddress], TEST_CONFIG.agency),
-    })
-    expect(oneTimeCode.result).toStrictEqual(false)
+    const oneTimeCode = await getReferralCodeUsed(
+      publicClientSepolia,
+      [result.onceAddress],
+      TEST_CONFIG.agency,
+    )
+    expect(oneTimeCode[0].result).toStrictEqual(false)
   })
 
   it('agent submitting', async () => {
