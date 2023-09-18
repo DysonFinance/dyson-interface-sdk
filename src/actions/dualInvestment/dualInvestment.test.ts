@@ -112,7 +112,7 @@ describe('dual investment test', () => {
         addressTo: testClientSepolia.account.address,
         routerAddress: TEST_CONFIG.router,
       })),
-      address: TEST_CONFIG.baseTokenPair.WBTC,
+      address: TEST_CONFIG.baseTokenPair.WBTC as Address,
       account: testClientSepolia.account,
       network: 'sepolia',
     })

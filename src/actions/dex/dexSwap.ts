@@ -15,14 +15,16 @@ export function prepareDexSwap(client: WalletClient, args: ISwapParams) {
   const isOutNative = tokenOut.toLowerCase() === args.wrappedNativeToken.toLowerCase()
 
   if (isInNative) {
-    return prepareFunctionParams({
-      abi: getAbiItem({
-        abi: ROUTER_ABI,
-        name: 'swapETHIn',
+    return {
+      ...prepareFunctionParams({
+        abi: getAbiItem({
+          abi: ROUTER_ABI,
+          name: 'swapETHIn',
+        }),
+        args: [tokenOut, BigInt(1), addressTo, minOutput],
       }),
-      args: [tokenOut, BigInt(1), addressTo, minOutput],
       value: inputBigNumber,
-    })
+    }
   }
   if (isOutNative) {
     return prepareFunctionParams({

@@ -3,7 +3,7 @@ import { getAbiItem, WalletClient } from 'viem'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { IDepositParams } from '@/constants/investment'
 import { prepareFunctionParams } from '@/utils/viem'
-
+// Should add native token test
 export function prepareInvestmentDeposit(client: WalletClient, args: IDepositParams) {
   const chain = client.chain
   if (!chain?.id || !args.wrappedNativeToken) {
@@ -14,14 +14,16 @@ export function prepareInvestmentDeposit(client: WalletClient, args: IDepositPar
   const isInNative = tokenIn.toLowerCase() === args.wrappedNativeToken.toLowerCase()
 
   if (isInNative) {
-    return prepareFunctionParams({
-      abi: getAbiItem({
-        abi: ROUTER_ABI,
-        name: 'depositETH',
+    return {
+      ...prepareFunctionParams({
+        abi: getAbiItem({
+          abi: ROUTER_ABI,
+          name: 'depositETH',
+        }),
+        args: [tokenOut, BigInt(1), addressTo, minOutput, BigInt(duration)],
       }),
-      args: [tokenOut, BigInt(1), addressTo, minOutput, BigInt(duration)],
       value: inputBigNumber,
-    })
+    }
   }
 
   return prepareFunctionParams({
