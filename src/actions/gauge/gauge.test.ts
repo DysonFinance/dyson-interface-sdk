@@ -9,7 +9,7 @@ import { prepareGaugeBalance, prepareGaugeInfos } from '@/reads/getGaugeInfo'
 import { getPairsConfig, preparePairLengths } from '@/reads/getPairsConfig'
 
 import { prepareApproveToken } from '../tokens'
-import { prepareApplyWithdraw, prepareGaugeDeposit, prepareWithdraw } from '.'
+import { prepareGaugeApplyWithdraw, prepareGaugeDeposit, prepareGaugeWithdraw } from '.'
 let sampleGauge: { gaugeAddress: Address; pairAddress: Address } | undefined = undefined
 
 describe('test gauge', () => {
@@ -89,7 +89,7 @@ describe('test gauge', () => {
     )
 
     const applyWithdrawResult = await sendTestTransaction({
-      ...prepareApplyWithdraw(testClientSepolia, {
+      ...prepareGaugeApplyWithdraw(testClientSepolia, {
         tokenAmount: targetAmount,
       }),
       address: sampleGauge!.gaugeAddress,
@@ -115,7 +115,7 @@ describe('test gauge', () => {
     })
 
     const withdrawResult = await sendTestTransaction({
-      ...prepareWithdraw(testClientSepolia),
+      ...prepareGaugeWithdraw(testClientSepolia),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
       network: 'sepolia',
