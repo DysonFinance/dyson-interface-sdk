@@ -2,6 +2,10 @@ import { createPool, startProxy } from '@viem/anvil'
 
 import { TEST_CHAIN_ID, TEST_JSON_RPC, TEST_MENOMIC } from './config'
 export default async function () {
+  BigInt.prototype.toJSON = function () {
+    const int = Number.parseInt(this.toString())
+    return int ?? this.toString()
+  }
   const proxy = await startProxy({
     port: 8545,
     pool: createPool({ instanceLimit: 10 }),

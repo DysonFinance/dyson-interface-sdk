@@ -12,7 +12,7 @@ import { getAgentInfo } from '@/reads/getAgencyInfo'
 import { getAgencyWhois } from '@/reads/getAgencyWhois'
 import { getReferralCodeUsed } from '@/reads/getReferralCodeUsed'
 
-import { signReferral } from './generateReferral'
+import { prepareSign, signReferral } from './generateReferral'
 import { buildReferralCode } from './referralCode'
 import {
   isReferral,
@@ -76,7 +76,8 @@ describe('agency referral code test', () => {
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
-    const { request } = await testChildSepolia.simulateContract({
+
+    await sendTestTransaction({
       ...(await prepareRegister(testChildSepolia, {
         deadline: Number(token.deadline),
         parentSig: token.parentSig! as `0x${string}`,
@@ -86,9 +87,6 @@ describe('agency referral code test', () => {
       })),
       address: TEST_CONFIG.agency,
       account: testChildSepolia.account,
-    })
-    await sendTestTransaction({
-      ...request,
       network: 'sepolia',
     })
 
@@ -111,5 +109,42 @@ describe('agency referral code test', () => {
     })
 
     expect(result[0]).not.toBe('0x0000000000000000000000000000000000000000')
+  })
+
+  it('simulate contract wallet sign', async () => {
+    await Promise.allSettled([testClientSepolia.reset(), testChildSepolia.reset()])
+    const token = await signReferral(
+      testClientSepolia,
+      TEST_CHAIN_ID,
+      TEST_CONFIG.agency,
+      Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
+      true,
+    )
+    await sendTestTransaction({
+      address: TEST_CONFIG.agency,
+      account: testClientSepolia.account,
+      network: 'sepolia',
+      ...(await prepareSign(token.parentSig)),
+    })
+
+    await sendTestTransaction({
+      ...(await prepareRegister(testChildSepolia, {
+        deadline: Number(token.deadline),
+        parentSig: testClientSepolia.account.address,
+        onceKey: token.onceKey! as `0x${string}`,
+        contractAddress: TEST_CONFIG.agency,
+        chainId: TEST_CHAIN_ID,
+      })),
+      address: TEST_CONFIG.agency,
+      account: testChildSepolia.account,
+      network: 'sepolia',
+    })
+
+    const register = await publicClientSepolia.readContract({
+      ...getAgencyWhois(testChildSepolia.account.address),
+      address: TEST_CONFIG.agency,
+    })
+
+    expect(register).not.toBe(0n)
   })
 })
