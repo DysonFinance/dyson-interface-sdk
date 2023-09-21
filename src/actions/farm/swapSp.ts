@@ -1,9 +1,9 @@
-import { getAbiItem, WalletClient } from 'viem'
+import { Address, getAbiItem, WalletClient } from 'viem'
 
-import GAUGE_ABI from '@/constants/abis/Gauge'
+import FARM_ABI from '@/constants/abis/Farm'
 import { prepareFunctionParams } from '@/utils/viem'
 
-export function prepareGaugeWithdraw(client: WalletClient) {
+export function prepareSpSwap(client: WalletClient, account: Address) {
   const chain = client.chain
   if (!chain?.id) {
     throw new Error('Chain Id on wallet client is empty')
@@ -11,8 +11,9 @@ export function prepareGaugeWithdraw(client: WalletClient) {
 
   return prepareFunctionParams({
     abi: getAbiItem({
-      abi: GAUGE_ABI,
-      name: 'withdraw',
+      abi: FARM_ABI,
+      name: 'swap',
     }),
+    args: [account],
   })
 }

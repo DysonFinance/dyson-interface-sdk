@@ -3,7 +3,7 @@ import { getAbiItem, WalletClient } from 'viem'
 import GAUGE_ABI from '@/constants/abis/Gauge'
 import { prepareFunctionParams } from '@/utils/viem'
 
-export function prepareApplyWithdraw(
+export function prepareGaugeApplyWithdraw(
   client: WalletClient,
   args: { tokenAmount: bigint },
 ) {
