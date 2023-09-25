@@ -1,13 +1,16 @@
-import type { Address, WalletClient } from 'viem'
+import { type Address, getAbiItem, hashTypedData, Hex, type WalletClient } from 'viem'
 import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
 
 import { ChainId } from '@/constants'
+import { ABIAgency } from '@/constants/abis'
+import { prepareFunctionParams } from '@/utils/viem'
 
 export async function signReferral(
   client: WalletClient,
   chainId: ChainId,
   agencyAddress: Address,
   deadline: number,
+  isUsedContractWallet = false,
 ) {
   const onceKey = generatePrivateKey()
   const onceAddress = privateKeyToAddress(onceKey)
@@ -17,7 +20,14 @@ export async function signReferral(
     onceAddress,
     deadline,
   )
-
+  if (isUsedContractWallet) {
+    return {
+      parentSig: hashTypedData({ ...parentTypedData, primaryType: 'register' }),
+      onceAddress,
+      onceKey,
+      deadline,
+    }
+  }
   const parentSig = await client.signTypedData({
     domain: parentTypedData.domain as any,
     types: parentTypedData.types,
@@ -27,6 +37,16 @@ export async function signReferral(
   })
 
   return { parentSig, onceAddress, onceKey, deadline }
+}
+
+/**
+ * @desc This only used on contract wallet
+ */
+export async function prepareSign(parentSig: Hex) {
+  return prepareFunctionParams({
+    abi: getAbiItem({ abi: ABIAgency, name: 'sign' }),
+    args: [parentSig],
+  })
 }
 
 function getParentTypedData(
@@ -52,13 +72,13 @@ function getParentTypedData(
     domain: {
       name: 'Dyson Agency',
       version: '1',
-      chainId: chainId,
+      chainId: BigInt(chainId),
       verifyingContract: agencyAddress as Address,
     },
     message: {
       once: onceAddress,
-      deadline: deadline,
-      price: 0,
+      deadline: deadline as any,
+      price: 0 as any,
     },
   } as const
 
