@@ -22,7 +22,7 @@ export function preparePairLengths() {
   })
 }
 
-function pairAddressesContract(factoryAddress: Address, pairIndex: number) {
+export function pairAddressesContract(factoryAddress: Address, pairIndex: number) {
   return {
     address: factoryAddress,
     abi: FACTORY_ABI,
@@ -31,7 +31,7 @@ function pairAddressesContract(factoryAddress: Address, pairIndex: number) {
   }
 }
 
-function pairTokenAddressesContract(pairAddress: Address, tokenIndex: number) {
+export function pairTokenAddressesContract(pairAddress: Address, tokenIndex: number) {
   const callName = tokenIndex === 0 ? 'token0' : 'token1'
   return {
     address: pairAddress,

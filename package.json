@@ -24,6 +24,7 @@
     "/actions",
     "/entities",
     "/reads",
+    "/calculations",
     "/utils",
     "/dist"
   ],
@@ -49,6 +50,10 @@
     "./reads": {
       "types": "./dist/reads/index.d.ts",
       "default": "./dist/reads/index.js"
+    },
+    "./calculations": {
+      "types": "./dist/calculations/index.d.ts",
+      "default": "./dist/calculations/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",

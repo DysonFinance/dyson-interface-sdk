@@ -15,6 +15,7 @@ export default defineConfig(
       'src/actions/index.ts',
       'src/entities/index.ts',
       'src/reads/index.ts',
+      'src/calculations/index.ts',
       'src/utils/index.ts',
       'src/constants/abis/index.ts',
     ],

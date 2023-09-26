@@ -133,7 +133,7 @@ export const calcPriceImpact = (
   calcFeeDecimals = 18,
 ) => {
   if (isNaN(Number(inputAmount)) || inputAmount == 0) {
-    return 0n // Return 0n for bigint
+    return 0
   }
   const reasonableFee = parseFloat(
     formatUnits((calcFeeValue * WeiPerEther) / INTEGER_UNIT_BN, calcFeeDecimals),
