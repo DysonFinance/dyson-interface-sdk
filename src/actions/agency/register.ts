@@ -1,4 +1,12 @@
-import { getAbiItem, Hash, hashTypedData, recoverAddress, type WalletClient } from 'viem'
+import {
+  getAbiItem,
+  Hash,
+  hashTypedData,
+  isAddress,
+  recoverAddress,
+  size,
+  type WalletClient,
+} from 'viem'
 import { type Address, privateKeyToAccount, privateKeyToAddress } from 'viem/accounts'
 
 import { ChainId } from '@/constants'
@@ -138,8 +146,11 @@ async function getParentNodeAddressByReferralCode(
   onceKey: string,
   deadline: string,
   agencyContractAddress: string,
-) {
+): Promise<{ parentAddress: Address; onceAddress: Address }> {
   const address = privateKeyToAddress(onceKey as Address)
+  if (size((parentSig as Address) || '0x') == 20 && isAddress(parentSig)) {
+    return { parentAddress: parentSig, onceAddress: address }
+  }
   const parentDigest = getParentDigest(
     chainId,
     agencyContractAddress,
