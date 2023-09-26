@@ -140,7 +140,7 @@ function getParentDigest(
   return parentTypedData
 }
 
-async function getParentNodeAddressByReferralCode(
+export async function getParentNodeAddressByReferralCode(
   chainId: ChainId,
   parentSig: string,
   onceKey: string,
