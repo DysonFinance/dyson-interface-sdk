@@ -6,8 +6,8 @@ import { DysonPair } from '@/entities/dysonPair'
 import { PoolToken } from '@/entities/poolToken'
 
 import { divu, exp_2, mulu } from './abdkMath64x64'
-import { calcSwappedAmount } from './apInfoCalc'
 import { sqrt } from './commonCalc'
+import { calcSwappedAmount } from './swapCalc'
 
 export const calcStrikePriceByAmount = (
   quoteTokenAmount: number,
@@ -59,10 +59,6 @@ export const calcFairPriceBigInt = (
       sqrt((WeiPerEther - reasonableOpponentFee) * WeiPerEther) *
       baseUnit)
   return result // 1e18 format
-}
-
-export const calcPremium = (volatility: number, daySecond: number) => {
-  return volatility * Math.sqrt(daySecond / (365.25 * 86400)) * 0.4
 }
 
 export const calcFeeWrapped = (lastFee: bigint, pastTime: bigint, halfLife: bigint) => {
@@ -149,34 +145,6 @@ export const calcTvl = (
   price0: number,
   price1: number,
 ) => reserve0 * price0 + reserve1 * price1
-
-export const calcRoi = (
-  isJoinReferrerSystem?: boolean,
-  investTokenValue?: number,
-  premium?: number,
-  govValue?: number,
-) => {
-  if (!isJoinReferrerSystem && premium) {
-    return premium * 100
-  }
-
-  if (!investTokenValue || !premium || !govValue) {
-    return undefined
-  }
-
-  if (investTokenValue - govValue <= 0) {
-    return Infinity
-  }
-
-  return ((investTokenValue * (1 + premium)) / (investTokenValue - govValue) - 1) * 100
-}
-
-export const calcRoiByAmount = (investTokenValue?: number, returnTokenValue?: number) => {
-  if (!investTokenValue || !returnTokenValue) {
-    return 0
-  }
-  return ((returnTokenValue - investTokenValue) / investTokenValue) * 100
-}
 
 export const calcPcv = (
   token0Pcv: number,

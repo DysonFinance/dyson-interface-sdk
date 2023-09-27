@@ -4,28 +4,6 @@ import { WeiPerEther } from '@/constants'
 
 import { sqrt } from './commonCalc'
 
-export const calcSwappedAmount = (
-  depositAmount: bigint,
-  inputReserve: bigint,
-  outputReserve: bigint,
-  calcFeeValue: bigint,
-) => {
-  const fee = (depositAmount * calcFeeValue) / 2n ** 64n
-  const inputWithFee = depositAmount - fee
-  return (inputWithFee * outputReserve) / (inputReserve + inputWithFee)
-}
-
-export const calcMinOutput = (
-  swappedAmount: bigint,
-  slippage: string,
-  decimals: number,
-) => {
-  return (
-    swappedAmount -
-    (swappedAmount * parseUnits(slippage, decimals)) / parseUnits('1', decimals)
-  )
-}
-
 export const calcLocalAP = (
   inputTokenAmount: bigint,
   virtualSwapOutputAmount: bigint,
@@ -132,4 +110,36 @@ export const getCurrentReserve = (
   lastUpdateTime: number,
 ) => {
   return (~~(Date.now() / 1000) - lastUpdateTime) * rewardRate + lastReserve
+}
+
+export const calcRoi = (
+  isJoinReferrerSystem?: boolean,
+  investTokenValue?: number,
+  premium?: number,
+  govValue?: number,
+) => {
+  if (!isJoinReferrerSystem && premium) {
+    return premium * 100
+  }
+
+  if (!investTokenValue || !premium || !govValue) {
+    return undefined
+  }
+
+  if (investTokenValue - govValue <= 0) {
+    return Infinity
+  }
+
+  return ((investTokenValue * (1 + premium)) / (investTokenValue - govValue) - 1) * 100
+}
+
+export const calcRoiByAmount = (investTokenValue?: number, returnTokenValue?: number) => {
+  if (!investTokenValue || !returnTokenValue) {
+    return 0
+  }
+  return ((returnTokenValue - investTokenValue) / investTokenValue) * 100
+}
+
+export const calcPremium = (volatility: number, daySecond: number) => {
+  return volatility * Math.sqrt(daySecond / (365.25 * 86400)) * 0.4
 }
