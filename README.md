@@ -6,10 +6,10 @@
 # yarn package
 yarn link
 # in target package
-yarn link @pelith/dyson-interface-sdk
+yarn link @dyson-finance/dyson-interface-sdk
 
 # pnpm package
 pnpm link --global
 # in target package
-pnpm link @pelith/dyson-interface-sdk
+pnpm link @dyson-finance/dyson-interface-sdk
 ```

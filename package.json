@@ -1,23 +1,19 @@
 {
-  "name": "@pelith/dyson-interface-sdk",
-  "description": "dyson finance interface sdk",
+  "name": "@dyson-finance/dyson-interface-sdk",
+  "description": "Dyson finance interface sdk",
   "keywords": [
     "dyson finance",
     "web3",
     "sdk"
   ],
   "license": "MIT",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pelith/dyson-interface-sdk",
-    "directory": "."
-  },
-  "homepage": "https://github.com/pelith/dyson-interface-sdk",
+  "homepage": "https://dyson.finance/",
   "contributors": [
     "Paul Li <paul.li@pelith.com>",
-    "Tim Wang <timwang@pelith.com>"
+    "Tim Wang <timwang@pelith.com>",
+    "Raman Chen <raman@pelith.com>"
   ],
   "files": [
     "/constants",
