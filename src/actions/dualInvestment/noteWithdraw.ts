@@ -1,79 +1,134 @@
-import { Address, getAbiItem, WalletClient } from 'viem'
+import { unzip } from 'lodash-es'
+import { Address, ContractFunctionConfig, getAbiItem, WalletClient } from 'viem'
 
-import { ChainId } from '@/constants'
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
+import DysonSwapPair from '@/constants/abis/DysonSwapPair'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { prepareFunctionParams } from '@/utils/viem'
 
-export function getWithdrawNoteTypedData(
-  chainId: ChainId,
-  dysonPairAddress: string,
-  noteIndex: number,
-  routerAddress: string,
-): any {
-  const withdrawTypedData = {
+function getApprovalForAllWithSigTypedData({
+  chainId,
+  owner,
+  pairAddress,
+  approved,
+  nonce,
+  deadline,
+}: {
+  chainId: bigint
+  owner: Address
+  pairAddress: Address
+  approved: boolean
+  nonce: bigint
+  deadline: bigint
+}) {
+  const approvalForAllTypedData = {
     types: {
-      withdraw: [
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
+      setApprovalForAllWithSig: [
+        { name: 'owner', type: 'address' },
         { name: 'operator', type: 'address' },
-        { name: 'index', type: 'uint' },
-        { name: 'to', type: 'address' },
-        { name: 'deadline', type: 'uint' },
+        { name: 'approved', type: 'bool' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' },
       ],
     },
-    primaryType: 'withdraw' as const,
+    primaryType: 'setApprovalForAllWithSig',
     domain: {
-      name: 'DysonPair',
+      name: 'Pair',
       version: '1',
       chainId: chainId,
-      verifyingContract: dysonPairAddress as Address,
+      verifyingContract: pairAddress,
     },
     message: {
-      operator: routerAddress as Address,
-      index: BigInt(noteIndex),
-      to: routerAddress as Address,
-      deadline: 0n,
+      owner,
+      operator: pairAddress,
+      approved,
+      nonce,
+      deadline,
     },
-  }
+  } as const
 
-  return withdrawTypedData
+  return approvalForAllTypedData
 }
 
-export async function prepareNoteWithdraw(
+/**
+ * @description This one use on Pair
+ */
+export async function prepareSetApprovalForAll(operator: Address, approved: boolean) {
+  return prepareFunctionParams({
+    abi: getAbiItem({ abi: DysonSwapPair, name: 'setApprovalForAll' }),
+    args: [operator, approved],
+  })
+}
+
+/**
+ * @description This one use on Router
+ */
+export async function prepareSetApprovalForAllWithSig(
+  client: WalletClient,
+  args: {
+    owner: Address
+    pairAddress: Address
+    approved: boolean
+    nonce: bigint
+    deadline: bigint
+  },
+) {
+  const chain = client.chain
+  if (!chain?.id) {
+    throw new Error('Chain Id on wallet client is empty')
+  }
+  const { owner, pairAddress, approved, nonce, deadline } = args
+  const approvalForAllDigest = getApprovalForAllWithSigTypedData({
+    chainId: BigInt(chain.id),
+    approved,
+    deadline,
+    nonce,
+    owner,
+    pairAddress,
+  })
+  const signedData = await client.signTypedData({
+    message: approvalForAllDigest.message,
+    types: approvalForAllDigest.types,
+    domain: approvalForAllDigest.domain,
+    primaryType: 'setApprovalForAllWithSig',
+    account: client.account!.address,
+  })
+
+  return prepareFunctionParams({
+    abi: getAbiItem({ abi: ROUTER_ABI, name: 'setApprovalForAllWithSig' }),
+    args: [pairAddress, approved, deadline, signedData],
+  })
+}
+
+export function prepareNoteWithdraw(
   client: WalletClient,
   args: {
     isNativePool: boolean
     noteIndex: number
     pairAddress: `0x${string}`
     addressTo: `0x${string}`
-    routerAddress: `0x${string}`
   },
-) {
+): Omit<ContractFunctionConfig, 'address'> & { value?: bigint | undefined } {
   const chain = client.chain
-  if (!chain?.id || !args.routerAddress) {
+  if (!chain?.id) {
     throw new Error('Chain Id on wallet client is empty')
   }
 
-  const { isNativePool, noteIndex, pairAddress, addressTo, routerAddress } = args
+  const { isNativePool, noteIndex, pairAddress, addressTo } = args
 
   if (isNativePool) {
-    const sigTypeData = getWithdrawNoteTypedData(
-      chain.id,
-      pairAddress,
-      noteIndex,
-      routerAddress,
-    )
-
-    const withdrawSig = await client.signTypedData({
-      ...sigTypeData,
-      account: client.account!.address,
-    })
-
     return prepareFunctionParams({
       abi: getAbiItem({
         abi: ROUTER_ABI,
         name: 'withdrawETH',
       }),
-      args: [pairAddress, BigInt(noteIndex), addressTo, BigInt(0), withdrawSig],
+      args: [pairAddress, BigInt(noteIndex), addressTo],
     })
   }
 
@@ -82,6 +137,33 @@ export async function prepareNoteWithdraw(
       abi: DYSON_PAIR_ABI,
       name: 'withdraw',
     }),
-    args: [BigInt(noteIndex)],
+    args: [BigInt(noteIndex), addressTo],
+  })
+}
+
+export function prepareNoteWithdrawForAll(
+  client: WalletClient,
+  args: {
+    pairs: {
+      address: Address
+      noteIndex: bigint
+      addressTo: Address
+    }[]
+  },
+) {
+  const chain = client.chain
+  if (!chain?.id) {
+    throw new Error('Chain Id on wallet client is empty')
+  }
+
+  const fnArg = unzip(
+    args.pairs.map((ele) => [ele.address, ele.noteIndex, ele.addressTo] as const),
+  ) as [Address[], bigint[], Address[]]
+  return prepareFunctionParams({
+    abi: getAbiItem({
+      abi: ROUTER_ABI,
+      name: 'withdrawMultiPositions',
+    }),
+    args: fnArg,
   })
 }

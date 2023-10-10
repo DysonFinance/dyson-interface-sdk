@@ -120,7 +120,7 @@ export default [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'sDYSONAmount',
+        name: 'sDysonAmount',
         type: 'uint256',
       },
       {
@@ -195,7 +195,7 @@ export default [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'sDYSONAmount',
+        name: 'sDysonAmount',
         type: 'uint256',
       },
     ],
@@ -239,6 +239,19 @@ export default [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_minter',
+        type: 'address',
+      },
+    ],
+    name: 'addMinter',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -309,6 +322,25 @@ export default [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'burn',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'currentModel',
     outputs: [
@@ -375,6 +407,25 @@ export default [
   {
     inputs: [
       {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'isMinter',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'uint256',
         name: 'index',
         type: 'uint256',
@@ -396,6 +447,30 @@ export default [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'mint',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -490,6 +565,19 @@ export default [
     inputs: [
       {
         internalType: 'address',
+        name: '_minter',
+        type: 'address',
+      },
+    ],
+    name: 'removeMinter',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
         name: 'tokenAddress',
         type: 'address',
       },
@@ -567,6 +655,19 @@ export default [
   {
     inputs: [
       {
+        internalType: 'int256',
+        name: '_unbackedSupplyCap',
+        type: 'int256',
+      },
+    ],
+    name: 'setUnbackedSupplyCap',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
         name: 'to',
         type: 'address',
@@ -586,7 +687,7 @@ export default [
     outputs: [
       {
         internalType: 'uint256',
-        name: 'sDYSONAmount',
+        name: 'sDysonAmount',
         type: 'uint256',
       },
     ],
@@ -686,6 +787,32 @@ export default [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'unbackedSupply',
+    outputs: [
+      {
+        internalType: 'int256',
+        name: '',
+        type: 'int256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'unbackedSupplyCap',
+    outputs: [
+      {
+        internalType: 'int256',
+        name: '',
+        type: 'int256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'address',
@@ -699,7 +826,7 @@ export default [
       },
       {
         internalType: 'uint256',
-        name: 'sDYSONAmount',
+        name: 'sDysonAmount',
         type: 'uint256',
       },
     ],
@@ -755,7 +882,7 @@ export default [
       },
       {
         internalType: 'uint256',
-        name: 'sDYSONAmount',
+        name: 'sDysonAmount',
         type: 'uint256',
       },
       {

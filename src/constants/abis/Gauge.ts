@@ -70,6 +70,12 @@ export default [
         type: 'address',
       },
       {
+        indexed: false,
+        internalType: 'address',
+        name: 'depositor',
+        type: 'address',
+      },
+      {
         indexed: true,
         internalType: 'uint256',
         name: 'week',
@@ -224,6 +230,11 @@ export default [
         internalType: 'uint256',
         name: 'amount',
         type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
       },
     ],
     name: 'deposit',

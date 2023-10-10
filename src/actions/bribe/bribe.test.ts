@@ -101,6 +101,7 @@ describe('bribe test', () => {
     const depositResult = await sendTestTransaction({
       ...prepareGaugeDeposit(testClientSepolia, {
         tokenAmount: 100000000000000000000n,
+        addressTo: testClientSepolia.account.address,
       }),
       address: gaugeAddress,
       account: testClientSepolia.account,

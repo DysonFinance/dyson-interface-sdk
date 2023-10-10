@@ -1,3 +1,4 @@
+export { default as ABIAddressBook } from './AddressBook'
 export { default as ABIAgency } from './Agency'
 export { default as ABIAuthFaucet } from './AuthFaucet'
 export { default as ABIBribe } from './Bribe'

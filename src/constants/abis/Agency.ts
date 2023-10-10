@@ -109,6 +109,19 @@ export default [
     inputs: [
       {
         internalType: 'address',
+        name: '_controller',
+        type: 'address',
+      },
+    ],
+    name: 'addController',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
         name: 'newUser',
         type: 'address',
       },
@@ -203,6 +216,25 @@ export default [
         type: 'address',
       },
     ],
+    name: 'isController',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     name: 'oneTimeCodes',
     outputs: [
       {
@@ -284,6 +316,19 @@ export default [
     inputs: [
       {
         internalType: 'address',
+        name: '_controller',
+        type: 'address',
+      },
+    ],
+    name: 'removeController',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
         name: 'tokenAddress',
         type: 'address',
       },
@@ -356,6 +401,25 @@ export default [
       },
     ],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'transferCooldown',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {

@@ -71,6 +71,7 @@ describe('test gauge', () => {
     const depositResult = await sendTestTransaction({
       ...prepareGaugeDeposit(testClientSepolia, {
         tokenAmount: targetAmount,
+        addressTo: testClientSepolia.account.address,
       }),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
@@ -107,7 +108,7 @@ describe('test gauge', () => {
     expect(gaugeBalance).toBe(gaugeBalanceAfterApplyWithdraw)
 
     await testClientSepolia.setNextBlockTimestamp({
-      timestamp: (~~(Date.now() / (TimeUnits.Week * 1000)) + 1) * TimeUnits.Week,
+      timestamp: BigInt((~~(Date.now() / (TimeUnits.Week * 1000)) + 1) * TimeUnits.Week),
     })
 
     await testClientSepolia.mine({

@@ -10,6 +10,31 @@ export default [
       {
         indexed: true,
         internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+    ],
+    name: 'ApprovalForAll',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
         name: 'user',
         type: 'address',
       },
@@ -142,7 +167,7 @@ export default [
   },
   {
     inputs: [],
-    name: 'DOMAIN_SEPARATOR',
+    name: 'APPROVE_TYPEHASH',
     outputs: [
       {
         internalType: 'bytes32',
@@ -155,7 +180,7 @@ export default [
   },
   {
     inputs: [],
-    name: 'WITHDRAW_TYPEHASH',
+    name: 'DOMAIN_SEPARATOR',
     outputs: [
       {
         internalType: 'bytes32',
@@ -411,6 +436,25 @@ export default [
         type: 'address',
       },
     ],
+    name: 'nonces',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     name: 'noteCount',
     outputs: [
       {
@@ -460,6 +504,30 @@ export default [
     inputs: [
       {
         internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'operatorApprovals',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
         name: 'tokenAddress',
         type: 'address',
       },
@@ -475,6 +543,57 @@ export default [
       },
     ],
     name: 'rescueERC20',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'deadline',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: 'sig',
+        type: 'bytes',
+      },
+    ],
+    name: 'setApprovalForAllWithSig',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -622,6 +741,11 @@ export default [
         name: 'index',
         type: 'uint256',
       },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
     ],
     name: 'withdraw',
     outputs: [
@@ -656,18 +780,8 @@ export default [
         name: 'to',
         type: 'address',
       },
-      {
-        internalType: 'uint256',
-        name: 'deadline',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes',
-        name: 'sig',
-        type: 'bytes',
-      },
     ],
-    name: 'withdrawWithSig',
+    name: 'withdrawFrom',
     outputs: [
       {
         internalType: 'uint256',
