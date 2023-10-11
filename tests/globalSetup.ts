@@ -1,6 +1,11 @@
 import { createPool, startProxy } from '@viem/anvil'
+import { writeContract } from 'viem/actions'
+import { sepolia } from 'viem/chains'
 
-import { TEST_CHAIN_ID, TEST_JSON_RPC, TEST_MENOMIC } from './config'
+import AuthFaucet from '@/constants/abis/AuthFaucet'
+
+import { TEST_CHAIN_ID, TEST_CONFIG, TEST_JSON_RPC, TEST_MENOMIC } from './config'
+import { testClientSepolia } from './utils'
 export default async function () {
   BigInt.prototype.toJSON = function () {
     const int = Number.parseInt(this.toString())
@@ -15,6 +20,18 @@ export default async function () {
       forkUrl: TEST_JSON_RPC,
       mnemonic: TEST_MENOMIC,
     },
+  })
+  await writeContract(testClientSepolia, {
+    chain: sepolia,
+    abi: AuthFaucet,
+    functionName: 'claimAgent',
+    address: TEST_CONFIG.faucet,
+  })
+  await writeContract(testClientSepolia, {
+    chain: sepolia,
+    abi: AuthFaucet,
+    functionName: 'claimToken',
+    address: TEST_CONFIG.agency,
   })
   // var myHeaders = new Headers()
   // myHeaders.append('Content-Type', 'application/json')
