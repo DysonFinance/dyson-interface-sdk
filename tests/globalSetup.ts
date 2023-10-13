@@ -1,38 +1,25 @@
 import { createPool, startProxy } from '@viem/anvil'
-import { writeContract } from 'viem/actions'
-import { sepolia } from 'viem/chains'
 
-import AuthFaucet from '@/constants/abis/AuthFaucet'
-
-import { TEST_CHAIN_ID, TEST_CONFIG, TEST_JSON_RPC, TEST_MENOMIC } from './config'
-import { testClientSepolia } from './utils'
+import { TEST_CHAIN_ID, TEST_JSON_RPC, TEST_MENOMIC, TEST_PORT } from './config'
+import { claimAgentAndToken, testClientSepolia } from './utils'
 export default async function () {
   BigInt.prototype.toJSON = function () {
     const int = Number.parseInt(this.toString())
     return int ?? this.toString()
   }
   const proxy = await startProxy({
-    port: 8545,
+    port: TEST_PORT,
+    host: '127.0.0.1',
     pool: createPool({ instanceLimit: 10 }),
     options: {
       chainId: TEST_CHAIN_ID,
       timeout: 1_00_0000,
       forkUrl: TEST_JSON_RPC,
       mnemonic: TEST_MENOMIC,
+      accounts: 10,
     },
   })
-  await writeContract(testClientSepolia, {
-    chain: sepolia,
-    abi: AuthFaucet,
-    functionName: 'claimAgent',
-    address: TEST_CONFIG.faucet,
-  })
-  await writeContract(testClientSepolia, {
-    chain: sepolia,
-    abi: AuthFaucet,
-    functionName: 'claimToken',
-    address: TEST_CONFIG.agency,
-  })
+  claimAgentAndToken(testClientSepolia.account)
   // var myHeaders = new Headers()
   // myHeaders.append('Content-Type', 'application/json')
 

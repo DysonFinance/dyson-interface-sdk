@@ -119,8 +119,8 @@ function getParentDigest(
       ],
       register: [
         { name: 'once', type: 'address' },
-        { name: 'deadline', type: 'uint' },
-        { name: 'price', type: 'uint' },
+        { name: 'deadline', type: 'uint256' },
+        { name: 'price', type: 'uint256' },
       ],
     },
     primaryType: 'register' as const,
@@ -132,8 +132,8 @@ function getParentDigest(
     },
     message: {
       once: onceAddress as Address,
-      deadline: BigInt(deadline) as any,
-      price: 0n as any,
+      deadline: BigInt(deadline),
+      price: 0n,
     },
   })
 

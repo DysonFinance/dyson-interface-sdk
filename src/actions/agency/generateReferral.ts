@@ -1,4 +1,11 @@
-import { type Address, getAbiItem, hashTypedData, Hex, type WalletClient } from 'viem'
+import {
+  Account,
+  type Address,
+  getAbiItem,
+  hashTypedData,
+  Hex,
+  type WalletClient,
+} from 'viem'
 import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
 
 import { ChainId } from '@/constants'
@@ -7,6 +14,7 @@ import { prepareFunctionParams } from '@/utils/viem'
 
 export async function signReferral(
   client: WalletClient,
+  account: Account,
   chainId: ChainId,
   agencyAddress: Address,
   deadline: number,
@@ -29,10 +37,10 @@ export async function signReferral(
     }
   }
   const parentSig = await client.signTypedData({
-    domain: parentTypedData.domain as any,
+    domain: parentTypedData.domain,
     types: parentTypedData.types,
-    message: parentTypedData.message as any,
-    account: client.account!,
+    message: parentTypedData.message,
+    account: account,
     primaryType: 'register',
   })
 
@@ -65,8 +73,8 @@ function getParentTypedData(
       ],
       register: [
         { name: 'once', type: 'address' },
-        { name: 'deadline', type: 'uint' },
-        { name: 'price', type: 'uint' },
+        { name: 'deadline', type: 'uint256' },
+        { name: 'price', type: 'uint256' },
       ],
     },
     domain: {
@@ -77,8 +85,8 @@ function getParentTypedData(
     },
     message: {
       once: onceAddress,
-      deadline: deadline as any,
-      price: 0 as any,
+      deadline: BigInt(deadline),
+      price: 0n,
     },
   } as const
 

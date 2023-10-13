@@ -43,7 +43,6 @@ describe('test gauge', () => {
       }),
       address: TEST_CONFIG.sDyson as Address,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(approveResult.receipt.status).toBe('success')
@@ -75,7 +74,6 @@ describe('test gauge', () => {
       }),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(depositResult.receipt.status).toBe('success')
@@ -95,7 +93,6 @@ describe('test gauge', () => {
       }),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(applyWithdrawResult.receipt.status).toBe('success')
@@ -119,7 +116,6 @@ describe('test gauge', () => {
       ...prepareGaugeWithdraw(testClientSepolia),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(withdrawResult.receipt.status).toBe('success')

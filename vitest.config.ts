@@ -8,6 +8,9 @@ export default defineConfig({
     globalSetup: ['./tests/globalSetup.ts'],
     testTimeout: 30_000,
     setupFiles: ['./tests/setup.ts'],
+    hookTimeout: 30_000,
+    cache: { dir: '.cache' },
+    singleThread: true,
   },
   resolve: {
     alias: {

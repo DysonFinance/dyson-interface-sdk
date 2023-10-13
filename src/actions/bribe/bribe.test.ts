@@ -1,8 +1,9 @@
+import { accountManager } from '@tests/accounts'
 import { TEST_CONFIG } from '@tests/config'
-import { sendTestTransaction, testClientSepolia } from '@tests/utils'
+import { claimAgentAndToken, sendTestTransaction, testClientSepolia } from '@tests/utils'
 import { type Address } from 'viem/accounts'
 import { multicall } from 'viem/actions'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import {
   prepareAddBribeReward,
@@ -14,16 +15,22 @@ import { bribeGaugeContract, tokenRewardOfWeekContract } from '@/reads/getBribes
 
 import { prepareGaugeDeposit } from '../gauge'
 
-describe('bribe test', () => {
+describe('bribe test', async () => {
+  const usedAccount = await accountManager.getAccount()
   beforeAll(async () => {
+    try {
+      await claimAgentAndToken(usedAccount)
+    } catch (_) {
+      /* empty */
+    }
+
     const approveResult = await sendTestTransaction({
       ...prepareApproveToken(testClientSepolia, {
         allowance: 10000000000000000000000000000n,
         spenderAddress: TEST_CONFIG.bribeSample as Address,
       }),
       address: TEST_CONFIG.tokens.USDC as Address,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: usedAccount,
     })
 
     expect(approveResult.receipt.status).toBe('success')
@@ -34,11 +41,13 @@ describe('bribe test', () => {
         spenderAddress: TEST_CONFIG.bribeSample as Address,
       }),
       address: TEST_CONFIG.dyson as Address,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: usedAccount,
     })
 
     expect(approveResult2.receipt.status).toBe('success')
+  })
+  afterAll(async () => {
+    accountManager.release(usedAccount)
   })
 
   it('add and read bribe and claim', async () => {
@@ -53,8 +62,7 @@ describe('bribe test', () => {
         amount: totalSampleReward,
       }),
       address: TEST_CONFIG.bribeSample,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: usedAccount,
     })
 
     await sendTestTransaction({
@@ -64,8 +72,7 @@ describe('bribe test', () => {
         amount: totalSampleReward * 10n,
       }),
       address: TEST_CONFIG.bribeSample,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: usedAccount,
     })
 
     expect(bribeResult.receipt.status).toBe('success')
@@ -92,8 +99,7 @@ describe('bribe test', () => {
         spenderAddress: gaugeAddress as Address,
       }),
       address: TEST_CONFIG.sDyson as Address,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: usedAccount,
     })
 
     expect(approveSdysnResult.receipt.status).toBe('success')
@@ -101,11 +107,10 @@ describe('bribe test', () => {
     const depositResult = await sendTestTransaction({
       ...prepareGaugeDeposit(testClientSepolia, {
         tokenAmount: 100000000000000000000n,
-        addressTo: testClientSepolia.account.address,
+        addressTo: usedAccount.address,
       }),
       address: gaugeAddress,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: usedAccount,
     })
 
     expect(depositResult.receipt.status).toBe('success')
@@ -124,8 +129,7 @@ describe('bribe test', () => {
         weekMatrix: [[thisWeek, thisWeek - 1n], [thisWeek]],
       }),
       address: TEST_CONFIG.bribeSample,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: usedAccount,
     })
 
     expect(claimResult.result[0]).toBeGreaterThan(0n)

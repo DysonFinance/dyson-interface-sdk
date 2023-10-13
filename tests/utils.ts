@@ -1,10 +1,11 @@
 import type { Abi } from 'abitype'
 import {
+  Account,
+  Address,
   createPublicClient,
   createTestClient,
   encodeFunctionData,
   http,
-  parseUnits,
   publicActions,
   SimulateContractParameters,
   walletActions,
@@ -13,50 +14,31 @@ import {
 import { mnemonicToAccount, parseAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 
-import { TEST_CHAIN_ID } from './config'
+import { prepareApproveToken } from '@/actions'
+import AuthFaucet from '@/constants/abis/AuthFaucet'
+
+import { TEST_CHAIN_ID, TEST_CONFIG, TEST_PORT } from './config'
 
 export const anvilSepolia = sepolia
 
 export const publicClientSepolia = createPublicClient({
   chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
-  transport: http(`http://0.0.0.0:8545/1`),
+  transport: http(`http://0.0.0.0:${TEST_PORT}/0`),
 })
 
 export const testClientSepolia = createTestClient({
   chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
   mode: 'anvil',
   account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY, { addressIndex: 1 }),
-  transport: http(`http://0.0.0.0:8545/1`),
+  transport: http(`http://0.0.0.0:${TEST_PORT}/0`),
 })
   .extend(walletActions)
   .extend(publicActions)
-
-export const testChildSepolia = createTestClient({
-  chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
-  mode: 'anvil',
-  account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY, { addressIndex: 3 }),
-  transport: http(`http://0.0.0.0:8545/1`),
-})
-  .extend(walletActions)
-  .extend(publicActions)
-
-testClientSepolia.setBalance({
-  address: testClientSepolia.account.address,
-  value: parseUnits('1000000', 18),
-})
-
-testChildSepolia.setBalance({
-  address: testClientSepolia.account.address,
-  value: parseUnits('1000000', 18),
-})
 
 export async function sendTestTransaction<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string = string,
->({
-  network,
-  ...args
-}: SimulateContractParameters<TAbi, TFunctionName> & { network: 'sepolia' }) {
+>({ ...args }: SimulateContractParameters<TAbi, TFunctionName>) {
   const publicClient = publicClientSepolia
   const testClient = testClientSepolia
 
@@ -85,4 +67,43 @@ export async function sendTestTransaction<
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
 
   return { request, result, receipt, hash }
+}
+
+export async function claimAgentAndToken(account: Account) {
+  try {
+    await sendTestTransaction({
+      account: account,
+      address: TEST_CONFIG.faucet,
+      abi: AuthFaucet,
+      functionName: 'claimAgent',
+    })
+    await sendTestTransaction({
+      account: account,
+      address: TEST_CONFIG.faucet,
+      abi: AuthFaucet,
+      functionName: 'claimToken',
+    })
+  } catch (error) {
+    // ignore
+  }
+}
+const targetAllowance = 10000000000000000000000000000n
+
+export async function approveToken(
+  account: Account,
+  token: Address,
+  spenderAddress: Address,
+) {
+  try {
+    await sendTestTransaction({
+      account,
+      address: token,
+      ...prepareApproveToken(testClientSepolia, {
+        spenderAddress,
+        allowance: targetAllowance,
+      }),
+    })
+  } catch (error) {
+    //
+  }
 }

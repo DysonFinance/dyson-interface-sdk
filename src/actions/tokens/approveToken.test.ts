@@ -17,7 +17,6 @@ describe('approve token test', () => {
       }),
       address: TEST_CONFIG.tokens.USDC as Address,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(approveResult.receipt.status).toBe('success')

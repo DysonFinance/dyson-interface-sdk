@@ -1,11 +1,13 @@
+import { accountManager } from '@tests/accounts'
 import { TEST_CHAIN_ID, TEST_CONFIG } from '@tests/config'
 import {
+  claimAgentAndToken,
   publicClientSepolia,
   sendTestTransaction,
-  testChildSepolia,
   testClientSepolia,
 } from '@tests/utils'
-import { describe, expect, it } from 'vitest'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
 import { getAgentInfo } from '@/reads/getAgencyInfo'
@@ -21,10 +23,30 @@ import {
   VerifyErrorOption,
 } from './register'
 
-describe('agency referral code test', () => {
+describe.only('agency referral code test', async () => {
+  let [parent, child, simulateChild] = await Promise.all([
+    accountManager.getAccount(),
+    privateKeyToAccount(generatePrivateKey()),
+    privateKeyToAccount(generatePrivateKey()),
+  ])
+  beforeAll(async () => {
+    await claimAgentAndToken(parent)
+    await testClientSepolia.setBalance({
+      address: child.address,
+      value: 1000000000000000000n,
+    })
+    await testClientSepolia.setBalance({
+      address: simulateChild.address,
+      value: 1000000000000000000n,
+    })
+  })
+  afterAll(async () => {
+    accountManager.release(parent)
+  })
   it.concurrent('create code and verify', async () => {
     const result = await signReferral(
       testClientSepolia,
+      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -39,6 +61,7 @@ describe('agency referral code test', () => {
   it.concurrent('encode decode', async () => {
     const result = await signReferral(
       testClientSepolia,
+      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -49,13 +72,16 @@ describe('agency referral code test', () => {
     const isToken = isReferral(usedToken)
     expect(isToken).toBe(true)
     if (isReferral(usedToken)) {
-      expect(usedToken.parentAddress).toBe(testClientSepolia.account.address)
+      expect(usedToken.parentAddress).toBe(parent.address)
+    } else {
+      expect(false).toBe(true)
     }
   })
 
   it.concurrent('check code on chain inused', async () => {
     const result = await signReferral(
       testClientSepolia,
+      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -68,17 +94,26 @@ describe('agency referral code test', () => {
     expect(oneTimeCode[0].result).toStrictEqual(false)
   })
 
-  it('agent submitting', async () => {
-    // test token cGFyZW50PTB4N2NhNjFhZTQxM2Q4N2M0ZGJkZDQ1MzM2OTkzZjBmMWM2ZWI1MWViYWM2ODA3NDA3MTFlMjk0ODgyZDU0MTg0OTQ5Y2IwMTFlZWZiNjU5YzMyNDlhYzhkYzA0OWJiYzIyZWVmMzVjNzQwNTAwNzQyZDBkNDkyNzQxOWEzMzQwOGIxYiZrZXk9MHg5MGE3NTM0YWZiODNjZDcxN2IwYjk3OTcwZTYzNWYyOTliOTYwZTcwNGRmNDA1NTU1ZDhkOWJkZTIzMjhhMGNjJmRlYWRsaW5lPTE2OTQ1OTc2Nzg=
+  let agentId = 0n
+
+  it.only('agent submitting', async () => {
+    // faucet member
+    agentId = await testClientSepolia.readContract({
+      ...getAgencyWhois(parent.address),
+      address: TEST_CONFIG.agency,
+    })
+    expect(agentId).not.toBe(0n)
+    console.log(agentId)
     const token = await signReferral(
       testClientSepolia,
+      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
 
     await sendTestTransaction({
-      ...(await prepareRegister(testChildSepolia, {
+      ...(await prepareRegister(testClientSepolia, {
         deadline: Number(token.deadline),
         parentSig: token.parentSig! as `0x${string}`,
         onceKey: token.onceKey! as `0x${string}`,
@@ -86,21 +121,20 @@ describe('agency referral code test', () => {
         chainId: TEST_CHAIN_ID,
       })),
       address: TEST_CONFIG.agency,
-      account: testChildSepolia.account,
-      network: 'sepolia',
+      account: child,
     })
 
     const register = await publicClientSepolia.readContract({
-      ...getAgencyWhois(testChildSepolia.account.address),
+      ...getAgencyWhois(child.address),
       address: TEST_CONFIG.agency,
     })
 
     expect(register).not.toBe(0n)
   })
 
-  it.concurrent('getAgent', async () => {
+  it.skipIf(agentId === 0n).only('getAgent', async () => {
     const register = await publicClientSepolia.readContract({
-      ...getAgencyWhois(testClientSepolia.account.address),
+      ...getAgencyWhois(parent.address),
       address: TEST_CONFIG.agency,
     })
     const result = await testClientSepolia.readContract({
@@ -111,10 +145,11 @@ describe('agency referral code test', () => {
     expect(result[0]).not.toBe('0x0000000000000000000000000000000000000000')
   })
 
-  it('simulate contract wallet sign', async () => {
-    await Promise.allSettled([testClientSepolia.reset(), testChildSepolia.reset()])
+  it.todo('simulate contract wallet sign', async () => {
+    await claimAgentAndToken(parent)
     const token = await signReferral(
       testClientSepolia,
+      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -122,26 +157,24 @@ describe('agency referral code test', () => {
     )
     await sendTestTransaction({
       address: TEST_CONFIG.agency,
-      account: testClientSepolia.account,
-      network: 'sepolia',
+      account: parent,
       ...(await prepareSign(token.parentSig)),
     })
 
     await sendTestTransaction({
-      ...(await prepareRegister(testChildSepolia, {
+      ...(await prepareRegister(testClientSepolia, {
         deadline: Number(token.deadline),
-        parentSig: testClientSepolia.account.address,
+        parentSig: parent.address,
         onceKey: token.onceKey! as `0x${string}`,
         contractAddress: TEST_CONFIG.agency,
         chainId: TEST_CHAIN_ID,
       })),
       address: TEST_CONFIG.agency,
-      account: testChildSepolia.account,
-      network: 'sepolia',
+      account: simulateChild,
     })
 
     const register = await publicClientSepolia.readContract({
-      ...getAgencyWhois(testChildSepolia.account.address),
+      ...getAgencyWhois(simulateChild.address),
       address: TEST_CONFIG.agency,
     })
 

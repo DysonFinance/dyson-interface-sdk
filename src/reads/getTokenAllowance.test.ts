@@ -14,7 +14,7 @@ describe.concurrent('fetching token allowance', () => {
   //     }),
   //     address: TEST_CONFIG.tokens.USDC as Address,
   //     account: testClientSepolia.account,
-  //     network: 'sepolia',
+  //
   //   })
 
   //   expect(approveResult.receipt.status).toBe('success')

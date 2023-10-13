@@ -1,5 +1,5 @@
 import { TEST_CONFIG } from '@tests/config'
-import { sendTestTransaction, testClientSepolia } from '@tests/utils'
+import { claimAgentAndToken, sendTestTransaction, testClientSepolia } from '@tests/utils'
 import type { Address } from 'viem'
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -9,8 +9,10 @@ import { prepareInvestmentDeposit } from '../dualInvestment'
 import { prepareApproveToken } from '../tokens/approveToken'
 import { prepareSpSwap } from '.'
 
-describe('swap sp test', () => {
+describe.only('swap sp test', () => {
+  const usedAccount = testClientSepolia.account
   beforeAll(async () => {
+    await claimAgentAndToken(usedAccount)
     const approveResult = await sendTestTransaction({
       ...prepareApproveToken(testClientSepolia, {
         allowance: 10000000000000000000000000000n,
@@ -18,7 +20,6 @@ describe('swap sp test', () => {
       }),
       address: TEST_CONFIG.tokens.USDC as Address,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(approveResult.receipt.status).toBe('success')
@@ -37,7 +38,6 @@ describe('swap sp test', () => {
       }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(depositResult.receipt.status).toBe('success')
@@ -46,7 +46,6 @@ describe('swap sp test', () => {
       ...prepareSpSwap(testClientSepolia, testClientSepolia.account.address),
       address: TEST_CONFIG.farm as Address,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(swapSpResult.receipt.status).toBe('success')

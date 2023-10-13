@@ -1,7 +1,13 @@
+import { accountManager } from '@tests/accounts'
 import { TEST_CONFIG } from '@tests/config'
-import { publicClientSepolia, sendTestTransaction, testClientSepolia } from '@tests/utils'
+import {
+  claimAgentAndToken,
+  publicClientSepolia,
+  sendTestTransaction,
+  testClientSepolia,
+} from '@tests/utils'
 import { maxUint256 } from 'viem'
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
 import Dyson from '@/constants/abis/Dyson'
@@ -13,30 +19,35 @@ import { getStakeGasFee, prepareStake } from './stake'
 
 let savedAmount = 0n
 
-describe('sdysn test', () => {
+describe.only('sdysn test', async () => {
   const lockDYSN = 100000n
+  const usedAccount = await accountManager.getAccount()
+  beforeAll(async () => {
+    await claimAgentAndToken(usedAccount)
+  })
+  afterAll(async () => {
+    accountManager.release(usedAccount)
+  })
   it('stake test', async () => {
     savedAmount = await publicClientSepolia.readContract({
-      ...getVaultCount(testClientSepolia.account.address),
+      ...getVaultCount(usedAccount.address),
       address: TEST_CONFIG.sDyson,
     })
 
     await sendTestTransaction({
-      network: 'sepolia',
       ...{
         abi: Dyson,
         address: TEST_CONFIG.dyson,
         functionName: 'approve',
         args: [TEST_CONFIG.sDyson, maxUint256],
-        account: testClientSepolia.account,
+        account: usedAccount,
       },
     })
 
     await sendTestTransaction({
-      network: 'sepolia',
       ...{
         ...prepareStake({
-          to: testClientSepolia.account.address,
+          to: usedAccount.address,
           tokenAmount: lockDYSN,
           stakeTime: 30 * TimeUnits.Day,
         }),
@@ -44,17 +55,17 @@ describe('sdysn test', () => {
         gas: await getStakeGasFee({
           client: testClientSepolia,
           contractAddress: TEST_CONFIG.sDyson,
-          userAddress: testClientSepolia.account.address,
-          to: testClientSepolia.account.address,
+          userAddress: usedAccount.address,
+          to: usedAccount.address,
           tokenAmount: lockDYSN,
           stakeTime: 30 * TimeUnits.Day,
         }),
-        account: testClientSepolia.account,
+        account: usedAccount,
       },
     })
 
     const vaultsAmount = await publicClientSepolia.readContract({
-      ...getVaultCount(testClientSepolia.account.address),
+      ...getVaultCount(usedAccount.address),
       address: TEST_CONFIG.sDyson,
     })
 
@@ -69,9 +80,8 @@ describe('sdysn test', () => {
         tokenAmount: appendingLock,
         stakeTime: 30 * TimeUnits.Day + 10,
       }),
-      account: testClientSepolia.account,
+      account: usedAccount,
       address: TEST_CONFIG.sDyson,
-      network: 'sepolia',
     })
   })
 
@@ -79,7 +89,7 @@ describe('sdysn test', () => {
     const vaults = await getVaults(
       publicClientSepolia,
       TEST_CONFIG.sDyson,
-      testClientSepolia.account.address,
+      usedAccount.address,
       Number(savedAmount),
     )
     expect(vaults[Number(savedAmount) - 1].result![0]).toBe(lockDYSN + appendingLock)
@@ -90,7 +100,7 @@ describe('sdysn test', () => {
       blocks: 1,
     })
     const args = {
-      to: testClientSepolia.account.address,
+      to: usedAccount.address,
       index: Number(savedAmount) - 1,
       sDYSNAmount: vaults[Number(savedAmount) - 1].result![1],
     }
@@ -100,16 +110,15 @@ describe('sdysn test', () => {
         client: testClientSepolia,
         ...args,
         contractAddress: TEST_CONFIG.sDyson,
-        userAddress: testClientSepolia.account.address,
+        userAddress: usedAccount.address,
       }),
-      account: testClientSepolia.account,
+      account: usedAccount,
       address: TEST_CONFIG.sDyson,
-      network: 'sepolia',
     })
     const vaults2 = await getVaults(
       publicClientSepolia,
       TEST_CONFIG.sDyson,
-      testClientSepolia.account.address,
+      usedAccount.address,
       Number(savedAmount),
     )
     expect(vaults2[Number(savedAmount) - 1].result?.[0]).toBe(0n)
