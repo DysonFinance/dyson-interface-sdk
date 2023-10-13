@@ -1,16 +1,20 @@
 import { accountManager } from '@tests/accounts'
 import { TEST_CONFIG } from '@tests/config'
 import { claimAgentAndToken, sendTestTransaction, testClientSepolia } from '@tests/utils'
+import { maxUint256 } from 'viem'
 import { type Address } from 'viem/accounts'
 import { multicall } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import {
+  getStakeGasFee,
   prepareAddBribeReward,
   prepareApproveToken,
   prepareClaimBribeMatrix,
+  prepareStake,
 } from '@/actions'
 import { TimeUnits } from '@/constants'
+import Dyson from '@/constants/abis/Dyson'
 import { bribeGaugeContract, tokenRewardOfWeekContract } from '@/reads/getBribes'
 
 import { prepareGaugeDeposit } from '../gauge'
@@ -24,9 +28,49 @@ describe('bribe test', async () => {
       /* empty */
     }
 
+    await sendTestTransaction({
+      ...{
+        abi: Dyson,
+        address: TEST_CONFIG.dyson,
+        functionName: 'approve',
+        args: [TEST_CONFIG.sDyson, maxUint256],
+        account: usedAccount,
+      },
+    })
+
+    const dysnBalance = await testClientSepolia.readContract({
+      address: TEST_CONFIG.tokens.USDC as Address,
+      abi: Dyson,
+      functionName: 'balanceOf',
+      args: [usedAccount.address],
+    })
+
+    const lockDYSN =
+      1000000000000000000n > dysnBalance ? dysnBalance / 2n : 1000000000000000000n
+
+    await sendTestTransaction({
+      ...{
+        ...prepareStake({
+          to: usedAccount.address,
+          tokenAmount: lockDYSN,
+          stakeTime: 30 * TimeUnits.Day,
+        }),
+        address: TEST_CONFIG.sDyson,
+        gas: await getStakeGasFee({
+          client: testClientSepolia,
+          contractAddress: TEST_CONFIG.sDyson,
+          userAddress: usedAccount.address,
+          to: usedAccount.address,
+          tokenAmount: lockDYSN,
+          stakeTime: 30 * TimeUnits.Day,
+        }),
+        account: usedAccount,
+      },
+    })
+
     const approveResult = await sendTestTransaction({
       ...prepareApproveToken(testClientSepolia, {
-        allowance: 10000000000000000000000000000n,
+        allowance: maxUint256,
         spenderAddress: TEST_CONFIG.bribeSample as Address,
       }),
       address: TEST_CONFIG.tokens.USDC as Address,
@@ -37,7 +81,7 @@ describe('bribe test', async () => {
 
     const approveResult2 = await sendTestTransaction({
       ...prepareApproveToken(testClientSepolia, {
-        allowance: 100000000000000000000000000n,
+        allowance: maxUint256,
         spenderAddress: TEST_CONFIG.bribeSample as Address,
       }),
       address: TEST_CONFIG.dyson as Address,
@@ -46,6 +90,7 @@ describe('bribe test', async () => {
 
     expect(approveResult2.receipt.status).toBe('success')
   })
+
   afterAll(async () => {
     accountManager.release(usedAccount)
   })
@@ -104,9 +149,16 @@ describe('bribe test', async () => {
 
     expect(approveSdysnResult.receipt.status).toBe('success')
 
+    const sdysnBalance = await testClientSepolia.readContract({
+      address: TEST_CONFIG.sDyson as Address,
+      abi: Dyson,
+      functionName: 'balanceOf',
+      args: [usedAccount.address],
+    })
+
     const depositResult = await sendTestTransaction({
       ...prepareGaugeDeposit(testClientSepolia, {
-        tokenAmount: 100000000000000000000n,
+        tokenAmount: sdysnBalance / 2n,
         addressTo: usedAccount.address,
       }),
       address: gaugeAddress,
@@ -126,7 +178,7 @@ describe('bribe test', async () => {
     const claimResult = await sendTestTransaction({
       ...prepareClaimBribeMatrix(testClientSepolia, {
         tokenList: [TEST_CONFIG.tokens.USDC as Address, TEST_CONFIG.dyson as Address],
-        weekMatrix: [[thisWeek, thisWeek - 1n], [thisWeek]],
+        weekMatrix: [[thisWeek], [thisWeek]],
       }),
       address: TEST_CONFIG.bribeSample,
       account: usedAccount,
