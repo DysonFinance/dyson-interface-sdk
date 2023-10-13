@@ -6,6 +6,7 @@ import {
   sendTestTransaction,
   testClientSepolia,
 } from '@tests/utils'
+import { hashTypedData, recoverAddress } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -32,7 +33,7 @@ describe.only('agency referral code test', async () => {
   beforeAll(async () => {
     await claimAgentAndToken(parent)
     await testClientSepolia.setNextBlockTimestamp({
-      timestamp: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Hour)
+      timestamp: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Hour),
     })
     await testClientSepolia.mine({
       blocks: 1,
@@ -100,6 +101,45 @@ describe.only('agency referral code test', async () => {
     expect(oneTimeCode[0].result).toStrictEqual(false)
   })
 
+  it.concurrent('check register recover success', async () => {
+    const token = await signReferral(
+      testClientSepolia,
+      parent,
+      TEST_CHAIN_ID,
+      TEST_CONFIG.agency,
+      Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
+    )
+
+    const config = await prepareRegister(testClientSepolia, {
+      deadline: Number(token.deadline),
+      parentSig: token.parentSig! as `0x${string}`,
+      onceKey: token.onceKey! as `0x${string}`,
+      contractAddress: TEST_CONFIG.agency,
+      chainId: TEST_CHAIN_ID,
+      childAddress: child.address,
+    })
+    const address = await recoverAddress({
+      hash: hashTypedData({
+        types: {
+          register: [{ name: 'child', type: 'address' }],
+        },
+        domain: {
+          name: 'Agency',
+          version: '1',
+          chainId: TEST_CHAIN_ID,
+          verifyingContract: TEST_CONFIG.agency,
+        },
+        primaryType: 'register',
+        message: {
+          child: child.address,
+        },
+      }),
+      signature: config.args[1],
+    })
+
+    expect(address).toBe(token.onceAddress)
+  })
+
   let agentId = 0n
 
   it.only('agent submitting', async () => {
@@ -125,6 +165,7 @@ describe.only('agency referral code test', async () => {
         onceKey: token.onceKey! as `0x${string}`,
         contractAddress: TEST_CONFIG.agency,
         chainId: TEST_CHAIN_ID,
+        childAddress: child.address,
       })),
       address: TEST_CONFIG.agency,
       account: child,
@@ -151,7 +192,7 @@ describe.only('agency referral code test', async () => {
     expect(result[0]).not.toBe('0x0000000000000000000000000000000000000000')
   })
 
-  it.todo('simulate contract wallet sign', async () => {
+  it('simulate contract wallet sign', async () => {
     await claimAgentAndToken(parent)
     const token = await signReferral(
       testClientSepolia,
@@ -174,6 +215,7 @@ describe.only('agency referral code test', async () => {
         onceKey: token.onceKey! as `0x${string}`,
         contractAddress: TEST_CONFIG.agency,
         chainId: TEST_CHAIN_ID,
+        childAddress: simulateChild.address,
       })),
       address: TEST_CONFIG.agency,
       account: simulateChild,
