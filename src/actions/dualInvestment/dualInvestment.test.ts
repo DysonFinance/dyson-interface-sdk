@@ -14,7 +14,7 @@ import { getAccountNotes } from '@/reads/getAccountNotes'
 
 import { prepareApproveToken } from '../tokens/approveToken'
 import { prepareInvestmentDeposit } from './investmentDeposit'
-import { prepareNoteWithdraw, prepareSetApprovalForAllWithSig } from './noteWithdraw'
+import { prepareNoteWithdraw, prepareSetApprovalForAll, prepareSetApprovalForAllWithSig } from './noteWithdraw'
 
 describe('dual investment test', async () => {
   const usedAccount = await accountManager.getAccount()
@@ -153,7 +153,19 @@ describe('dual investment test', async () => {
       (n) => n.token0Amount + n.token1Amount > 0,
     )
     const latestNote = availableNoteList[availableNoteList.length - 1]
-
+    const preparedConfig = await prepareSetApprovalForAllWithSig(testClientSepolia, {
+      owner: usedAccount.address,
+      approved: true,
+      deadline: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day),
+      nonce: 0n,
+      pairAddress: TEST_CONFIG.baseTokenPair.WETH!,
+    })
+    const approvalOperatorStatus = await sendTestTransaction({
+      account: usedAccount,
+      address: TEST_CONFIG.router,
+      ...preparedConfig,
+    })
+    expect(approvalOperatorStatus.receipt.status).toBe('success')
     await testClientSepolia.setNextBlockTimestamp({
       timestamp: latestNote.due,
     })
@@ -212,13 +224,14 @@ describe('dual investment test', async () => {
     await testClientSepolia.mine({
       blocks: 1,
     })
-    const preparedConfig = await prepareSetApprovalForAllWithSig(testClientSepolia, {
-      owner: usedAccount.address,
-      approved: true,
-      deadline: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day),
-      nonce: 0n,
-      pairAddress: TEST_CONFIG.baseTokenPair.WETH!,
-    })
+    // const preparedConfig = await prepareSetApprovalForAllWithSig(testClientSepolia, {
+    //   owner: usedAccount.address,
+    //   approved: true,
+    //   deadline: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day),
+    //   nonce: 0n,
+    //   pairAddress: TEST_CONFIG.baseTokenPair.WETH!,
+    // })
+    const preparedConfig = await prepareSetApprovalForAll(TEST_CONFIG.router, true)
     const approvalOperatorStatus = await sendTestTransaction({
       account: usedAccount,
       address: TEST_CONFIG.router,
