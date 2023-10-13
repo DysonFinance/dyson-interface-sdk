@@ -31,6 +31,12 @@ describe.only('agency referral code test', async () => {
   ])
   beforeAll(async () => {
     await claimAgentAndToken(parent)
+    await testClientSepolia.setNextBlockTimestamp({
+      timestamp: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Hour)
+    })
+    await testClientSepolia.mine({
+      blocks: 1,
+    })
     await testClientSepolia.setBalance({
       address: child.address,
       value: 1000000000000000000n,
