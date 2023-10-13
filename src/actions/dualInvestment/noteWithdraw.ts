@@ -9,13 +9,15 @@ import { prepareFunctionParams } from '@/utils/viem'
 function getApprovalForAllWithSigTypedData({
   chainId,
   owner,
+  operator,
   pairAddress,
   approved,
   nonce,
   deadline,
 }: {
-  chainId: bigint
+  chainId: number
   owner: Address
+  operator: Address
   pairAddress: Address
   approved: boolean
   nonce: bigint
@@ -23,12 +25,6 @@ function getApprovalForAllWithSigTypedData({
 }) {
   const approvalForAllTypedData = {
     types: {
-      EIP712Domain: [
-        { name: 'name', type: 'string' },
-        { name: 'version', type: 'string' },
-        { name: 'chainId', type: 'uint256' },
-        { name: 'verifyingContract', type: 'address' },
-      ],
       setApprovalForAllWithSig: [
         { name: 'owner', type: 'address' },
         { name: 'operator', type: 'address' },
@@ -37,7 +33,7 @@ function getApprovalForAllWithSigTypedData({
         { name: 'deadline', type: 'uint256' },
       ],
     },
-    primaryType: 'setApprovalForAllWithSig',
+    primaryType: 'setApprovalForAllWithSig' as const,
     domain: {
       name: 'Pair',
       version: '1',
@@ -46,7 +42,7 @@ function getApprovalForAllWithSigTypedData({
     },
     message: {
       owner,
-      operator: pairAddress,
+      operator,
       approved,
       nonce,
       deadline,
@@ -74,6 +70,7 @@ export async function prepareSetApprovalForAllWithSig(
   args: {
     owner: Address
     pairAddress: Address
+    operator: Address
     approved: boolean
     nonce: bigint
     deadline: bigint
@@ -83,21 +80,19 @@ export async function prepareSetApprovalForAllWithSig(
   if (!chain?.id) {
     throw new Error('Chain Id on wallet client is empty')
   }
-  const { owner, pairAddress, approved, nonce, deadline } = args
+  const { owner, pairAddress, approved, nonce, deadline, operator } = args
   const approvalForAllDigest = getApprovalForAllWithSigTypedData({
-    chainId: BigInt(chain.id),
+    chainId: chain.id,
     approved,
     deadline,
+    operator,
     nonce,
     owner,
     pairAddress,
   })
   const signedData = await client.signTypedData({
-    message: approvalForAllDigest.message,
-    types: approvalForAllDigest.types,
-    domain: approvalForAllDigest.domain,
-    primaryType: 'setApprovalForAllWithSig',
-    account: client.account!.address,
+    ...approvalForAllDigest,
+    account: owner,
   })
 
   return prepareFunctionParams({

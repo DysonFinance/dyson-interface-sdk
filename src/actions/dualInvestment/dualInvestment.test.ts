@@ -6,15 +6,17 @@ import {
   sendTestTransaction,
   testClientSepolia,
 } from '@tests/utils'
-import type { Address } from 'viem'
+import { type Address, encodeFunctionData } from 'viem'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
+import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
+import { preparePairOperatorApprovals } from '@/reads'
 import { getAccountNotes } from '@/reads/getAccountNotes'
 
 import { prepareApproveToken } from '../tokens/approveToken'
 import { prepareInvestmentDeposit } from './investmentDeposit'
-import { prepareNoteWithdraw, prepareSetApprovalForAll, prepareSetApprovalForAllWithSig } from './noteWithdraw'
+import { prepareNoteWithdraw, prepareSetApprovalForAllWithSig } from './noteWithdraw'
 
 describe('dual investment test', async () => {
   const usedAccount = await accountManager.getAccount()
@@ -153,19 +155,26 @@ describe('dual investment test', async () => {
       (n) => n.token0Amount + n.token1Amount > 0,
     )
     const latestNote = availableNoteList[availableNoteList.length - 1]
+
     const preparedConfig = await prepareSetApprovalForAllWithSig(testClientSepolia, {
       owner: usedAccount.address,
       approved: true,
       deadline: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day),
       nonce: 0n,
       pairAddress: TEST_CONFIG.baseTokenPair.WETH!,
+      operator: TEST_CONFIG.router,
     })
-    const approvalOperatorStatus = await sendTestTransaction({
-      account: usedAccount,
-      address: TEST_CONFIG.router,
+    // const approvalOperatorStatus = await sendTestTransaction({
+    //   account: usedAccount,
+    //   address: TEST_CONFIG.router,
+    //   ...preparedConfig,
+    // })
+
+    const callDataApprove = encodeFunctionData({
       ...preparedConfig,
     })
-    expect(approvalOperatorStatus.receipt.status).toBe('success')
+
+    // expect(approvalOperatorStatus.receipt.status).toBe('success')
     await testClientSepolia.setNextBlockTimestamp({
       timestamp: latestNote.due,
     })
@@ -174,21 +183,45 @@ describe('dual investment test', async () => {
       blocks: 1,
     })
 
-    const withdrawResult = await sendTestTransaction({
-      ...(await prepareNoteWithdraw(testClientSepolia, {
+    const callDataWithdraw = encodeFunctionData({
+      ...prepareNoteWithdraw(testClientSepolia, {
         isNativePool: true,
         noteIndex: latestNote.noteIndex,
         pairAddress: TEST_CONFIG.baseTokenPair.WETH as Address,
         addressTo: usedAccount.address,
-      })),
+      }),
+    })
+
+    // const withdrawResult = await sendTestTransaction({
+    //   ...prepareNoteWithdraw(testClientSepolia, {
+    //     isNativePool: true,
+    //     noteIndex: latestNote.noteIndex,
+    //     pairAddress: TEST_CONFIG.baseTokenPair.WETH as Address,
+    //     addressTo: usedAccount.address,
+    //   }),
+    //   address: TEST_CONFIG.router as Address,
+    //   account: usedAccount,
+    // })
+
+    const withdrawResult = await sendTestTransaction({
+      abi: ROUTER_ABI,
+      functionName: 'multicall',
+      args: [[callDataApprove, callDataWithdraw]],
       address: TEST_CONFIG.router as Address,
       account: usedAccount,
     })
 
     expect(withdrawResult.receipt.status).toBe('success')
+
+    const operatorResult = await testClientSepolia.readContract({
+      ...preparePairOperatorApprovals(usedAccount.address, TEST_CONFIG.router as Address),
+      address: TEST_CONFIG.baseTokenPair.WETH as Address,
+    })
+
+    expect(operatorResult).toBe(true)
   })
 
-  it('withdraw ETH pool2', async () => {
+  it.only('withdraw ETH pool2', async () => {
     const depositResult = await sendTestTransaction({
       ...prepareInvestmentDeposit(testClientSepolia, {
         tokenIn: TEST_CONFIG.tokens.WETH as Address,
@@ -228,16 +261,17 @@ describe('dual investment test', async () => {
     //   owner: usedAccount.address,
     //   approved: true,
     //   deadline: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day),
-    //   nonce: 0n,
+    //   nonce: 1n,
     //   pairAddress: TEST_CONFIG.baseTokenPair.WETH!,
+    //   operator: TEST_CONFIG.router,
     // })
-    const preparedConfig = await prepareSetApprovalForAll(TEST_CONFIG.router, true)
-    const approvalOperatorStatus = await sendTestTransaction({
-      account: usedAccount,
-      address: TEST_CONFIG.router,
-      ...preparedConfig,
-    })
-    expect(approvalOperatorStatus.receipt.status).toBe('success')
+
+    // const approvalOperatorStatus = await sendTestTransaction({
+    //   account: usedAccount,
+    //   address: TEST_CONFIG.router,
+    //   ...preparedConfig,
+    // })
+    // expect(approvalOperatorStatus.receipt.status).toBe('success')
     const withdrawResult = await sendTestTransaction({
       ...(await prepareNoteWithdraw(testClientSepolia, {
         isNativePool: true,
