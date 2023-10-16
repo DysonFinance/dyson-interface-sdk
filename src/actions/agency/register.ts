@@ -47,14 +47,13 @@ export async function prepareRegister(
     onceKey: Address
     parentSig: Hash
     deadline: number
-    childAddress: Address
   },
 ) {
   const wallet = privateKeyToAccount(args.onceKey)
   const registerDigest = getOnceTypedData(
     args.chainId,
     args.contractAddress,
-    args.childAddress,
+    client.account!.address,
   )
 
   const registerSig = await wallet.signTypedData({

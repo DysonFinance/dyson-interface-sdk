@@ -11,7 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
-import { preparePairOperatorApprovals } from '@/reads'
+import { getPairOperatorApprovals } from '@/reads'
 import { getAccountNotes } from '@/reads/getAccountNotes'
 
 import { prepareApproveToken } from '../tokens/approveToken'
@@ -214,7 +214,7 @@ describe('dual investment test', async () => {
     expect(withdrawResult.receipt.status).toBe('success')
 
     const operatorResult = await testClientSepolia.readContract({
-      ...preparePairOperatorApprovals(usedAccount.address, TEST_CONFIG.router as Address),
+      ...getPairOperatorApprovals(usedAccount.address, TEST_CONFIG.router as Address),
       address: TEST_CONFIG.baseTokenPair.WETH as Address,
     })
 

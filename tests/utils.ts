@@ -29,7 +29,7 @@ export const publicClientSepolia = createPublicClient({
 export const testClientSepolia = createTestClient({
   chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
   mode: 'anvil',
-  account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY, { addressIndex: 1 }),
+  account: mnemonicToAccount(import.meta.env.VITE_PRIVATE_KEY, { addressIndex: 0 }),
   transport: http(`http://0.0.0.0:${TEST_PORT}/0`),
 })
   .extend(walletActions)
