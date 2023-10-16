@@ -1,11 +1,4 @@
-import {
-  Account,
-  type Address,
-  getAbiItem,
-  hashTypedData,
-  Hex,
-  type WalletClient,
-} from 'viem'
+import { type Address, getAbiItem, hashTypedData, Hex, type WalletClient } from 'viem'
 import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
 
 import { ChainId } from '@/constants'
@@ -14,7 +7,6 @@ import { prepareFunctionParams } from '@/utils/viem'
 
 export async function signReferral(
   client: WalletClient,
-  account: Account,
   chainId: ChainId,
   agencyAddress: Address,
   deadline: number,
@@ -40,7 +32,7 @@ export async function signReferral(
     domain: parentTypedData.domain,
     types: parentTypedData.types,
     message: parentTypedData.message,
-    account: account,
+    account: client.account!,
     primaryType: 'register',
   })
 
@@ -65,6 +57,12 @@ function getParentTypedData(
 ) {
   const parentTypedData = {
     types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
       register: [
         { name: 'once', type: 'address' },
         { name: 'deadline', type: 'uint256' },
@@ -74,13 +72,13 @@ function getParentTypedData(
     domain: {
       name: 'Agency',
       version: '1',
-      chainId: chainId,
+      chainId: BigInt(chainId),
       verifyingContract: agencyAddress as Address,
     },
     message: {
       once: onceAddress,
-      deadline: BigInt(deadline),
-      price: 0n,
+      deadline: deadline as any,
+      price: 0 as any,
     },
   } as const
 

@@ -35,6 +35,17 @@ export const testClientSepolia = createTestClient({
   .extend(walletActions)
   .extend(publicActions)
 
+export function createMockingClient(account: Account) {
+  return createTestClient({
+    chain: { ...anvilSepolia, id: TEST_CHAIN_ID },
+    mode: 'anvil',
+    transport: http(`http://0.0.0.0:${TEST_PORT}/0`),
+    account,
+  })
+    .extend(walletActions)
+    .extend(publicActions)
+}
+
 export async function sendTestTransaction<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string = string,
@@ -84,6 +95,7 @@ export async function claimAgentAndToken(account: Account) {
       functionName: 'claimToken',
     })
   } catch (error) {
+    console.log(error)
     // ignore
   }
 }

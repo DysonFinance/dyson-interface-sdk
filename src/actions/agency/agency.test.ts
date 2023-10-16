@@ -2,6 +2,7 @@ import { accountManager } from '@tests/accounts'
 import { TEST_CHAIN_ID, TEST_CONFIG } from '@tests/config'
 import {
   claimAgentAndToken,
+  createMockingClient,
   publicClientSepolia,
   sendTestTransaction,
   testClientSepolia,
@@ -30,10 +31,15 @@ describe.only('agency referral code test', async () => {
     privateKeyToAccount(generatePrivateKey()),
     privateKeyToAccount(generatePrivateKey()),
   ])
+  const parentClient = createMockingClient(parent)
+  const childClient = createMockingClient(child)
+  const simulateChildClient = createMockingClient(simulateChild)
+  let agentId = 0n
   beforeAll(async () => {
     await claimAgentAndToken(parent)
+    await claimAgentAndToken(testClientSepolia.account)
     await testClientSepolia.setNextBlockTimestamp({
-      timestamp: BigInt(Math.floor(Date.now() / 1000) + 4 * TimeUnits.Hour),
+      timestamp: BigInt(Math.floor(Date.now() / 1000) + TimeUnits.Day),
     })
     await testClientSepolia.mine({
       blocks: 1,
@@ -50,10 +56,17 @@ describe.only('agency referral code test', async () => {
   afterAll(async () => {
     accountManager.release(parent)
   })
+  it('expect agent faucet - in testchain', async () => {
+    // faucet member
+    agentId = await publicClientSepolia.readContract({
+      ...getAgencyWhois(testClientSepolia.account.address),
+      address: TEST_CONFIG.agency,
+    })
+    expect(agentId).not.toBe(0n)
+  })
   it.concurrent('create code and verify', async () => {
     const result = await signReferral(
       testClientSepolia,
-      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -67,8 +80,7 @@ describe.only('agency referral code test', async () => {
 
   it.concurrent('encode decode', async () => {
     const result = await signReferral(
-      testClientSepolia,
-      parent,
+      parentClient,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -87,8 +99,7 @@ describe.only('agency referral code test', async () => {
 
   it.concurrent('check code on chain inused', async () => {
     const result = await signReferral(
-      testClientSepolia,
-      parent,
+      parentClient,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -104,34 +115,38 @@ describe.only('agency referral code test', async () => {
   it.concurrent('check register recover success', async () => {
     const token = await signReferral(
       testClientSepolia,
-      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
 
-    const config = await prepareRegister(testClientSepolia, {
+    const config = await prepareRegister(childClient, {
       deadline: Number(token.deadline),
       parentSig: token.parentSig! as `0x${string}`,
       onceKey: token.onceKey! as `0x${string}`,
       contractAddress: TEST_CONFIG.agency,
       chainId: TEST_CHAIN_ID,
-      childAddress: child.address,
     })
     const address = await recoverAddress({
       hash: hashTypedData({
         types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
           register: [{ name: 'child', type: 'address' }],
         },
         domain: {
           name: 'Agency',
           version: '1',
-          chainId: TEST_CHAIN_ID,
+          chainId: BigInt(TEST_CHAIN_ID),
           verifyingContract: TEST_CONFIG.agency,
         },
         primaryType: 'register',
         message: {
-          child: child.address,
+          child: childClient.account.address,
         },
       }),
       signature: config.args[1],
@@ -140,37 +155,25 @@ describe.only('agency referral code test', async () => {
     expect(address).toBe(token.onceAddress)
   })
 
-  let agentId = 0n
-
-  it.only('agent submitting', async () => {
-    // faucet member
-    agentId = await testClientSepolia.readContract({
-      ...getAgencyWhois(parent.address),
-      address: TEST_CONFIG.agency,
-    })
-    expect(agentId).not.toBe(0n)
-    console.log(agentId)
+  it('agent submitting', async () => {
     const token = await signReferral(
       testClientSepolia,
-      parent,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
     )
 
     await sendTestTransaction({
-      ...(await prepareRegister(testClientSepolia, {
+      ...(await prepareRegister(childClient, {
         deadline: Number(token.deadline),
         parentSig: token.parentSig! as `0x${string}`,
         onceKey: token.onceKey! as `0x${string}`,
         contractAddress: TEST_CONFIG.agency,
         chainId: TEST_CHAIN_ID,
-        childAddress: child.address,
       })),
       address: TEST_CONFIG.agency,
-      account: child,
+      account: childClient.account,
     })
-
     const register = await publicClientSepolia.readContract({
       ...getAgencyWhois(child.address),
       address: TEST_CONFIG.agency,
@@ -193,10 +196,8 @@ describe.only('agency referral code test', async () => {
   })
 
   it('simulate contract wallet sign', async () => {
-    await claimAgentAndToken(parent)
     const token = await signReferral(
-      testClientSepolia,
-      parent,
+      parentClient,
       TEST_CHAIN_ID,
       TEST_CONFIG.agency,
       Math.floor(Date.now() / 1000) + 4 * TimeUnits.Day,
@@ -209,13 +210,12 @@ describe.only('agency referral code test', async () => {
     })
 
     await sendTestTransaction({
-      ...(await prepareRegister(testClientSepolia, {
+      ...(await prepareRegister(simulateChildClient, {
         deadline: Number(token.deadline),
         parentSig: parent.address,
         onceKey: token.onceKey! as `0x${string}`,
         contractAddress: TEST_CONFIG.agency,
         chainId: TEST_CHAIN_ID,
-        childAddress: simulateChild.address,
       })),
       address: TEST_CONFIG.agency,
       account: simulateChild,

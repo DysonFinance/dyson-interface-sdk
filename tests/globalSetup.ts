@@ -1,7 +1,6 @@
 import { createPool, startProxy } from '@viem/anvil'
 
 import { TEST_CHAIN_ID, TEST_JSON_RPC, TEST_MENOMIC, TEST_PORT } from './config'
-import { claimAgentAndToken, testClientSepolia } from './utils'
 export default async function () {
   BigInt.prototype.toJSON = function () {
     const int = Number.parseInt(this.toString())
@@ -19,7 +18,7 @@ export default async function () {
       accounts: 10,
     },
   })
-  claimAgentAndToken(testClientSepolia.account)
+
   // var myHeaders = new Headers()
   // myHeaders.append('Content-Type', 'application/json')
 

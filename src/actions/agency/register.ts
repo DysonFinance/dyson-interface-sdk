@@ -59,7 +59,7 @@ export async function prepareRegister(
   const registerSig = await wallet.signTypedData({
     message: registerDigest.message,
     types: registerDigest.types,
-    domain: registerDigest.domain,
+    domain: registerDigest.domain as any,
     primaryType: 'register',
   })
 
@@ -111,6 +111,12 @@ function getParentDigest(
 ) {
   const parentTypedData = hashTypedData({
     types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
       register: [
         { name: 'once', type: 'address' },
         { name: 'deadline', type: 'uint256' },
@@ -121,7 +127,7 @@ function getParentDigest(
     domain: {
       name: 'Agency',
       version: '1',
-      chainId: chainId,
+      chainId: BigInt(chainId),
       verifyingContract: agencyAddress as Address,
     },
     message: {
@@ -165,6 +171,12 @@ function getOnceTypedData(
 ) {
   const registerTypedData = {
     types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
       register: [{ name: 'child', type: 'address' }],
     },
     domain: {
