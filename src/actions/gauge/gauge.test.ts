@@ -1,19 +1,65 @@
 import { TEST_CONFIG } from '@tests/config'
-import { publicClientSepolia, sendTestTransaction, testClientSepolia } from '@tests/utils'
-import type { Address } from 'viem'
+import {
+  claimAgentAndToken,
+  publicClientSepolia,
+  sendTestTransaction,
+  testClientSepolia,
+} from '@tests/utils'
+import { type Address, maxUint256 } from 'viem'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
+import Dyson from '@/constants/abis/Dyson'
 import ERC_20 from '@/constants/abis/erc20'
 import { prepareGaugeBalance, prepareGaugeInfos } from '@/reads/getGaugeInfo'
 import { getPairsConfig, preparePairLengths } from '@/reads/getPairsConfig'
+import { getVaultCount } from '@/reads/getStakingVault'
 
 import { prepareApproveToken } from '../tokens'
+import { getStakeGasFee, prepareStake } from './../sDysn/stake'
 import { prepareGaugeApplyWithdraw, prepareGaugeDeposit, prepareGaugeWithdraw } from '.'
 let sampleGauge: { gaugeAddress: Address; pairAddress: Address } | undefined = undefined
 
 describe('test gauge', () => {
   beforeAll(async () => {
+    await claimAgentAndToken(testClientSepolia.account)
+    const usedAccount = testClientSepolia.account
+
+    await sendTestTransaction({
+      ...{
+        abi: Dyson,
+        address: TEST_CONFIG.dyson,
+        functionName: 'approve',
+        args: [TEST_CONFIG.sDyson, maxUint256],
+        account: usedAccount,
+      },
+    })
+    const lockDYSN = 1000000000000000000n
+
+    await sendTestTransaction({
+      ...{
+        ...prepareStake({
+          to: usedAccount.address,
+          tokenAmount: lockDYSN,
+          stakeTime: 30 * TimeUnits.Day,
+        }),
+        address: TEST_CONFIG.sDyson,
+        gas: await getStakeGasFee({
+          client: testClientSepolia,
+          contractAddress: TEST_CONFIG.sDyson,
+          userAddress: usedAccount.address,
+          to: usedAccount.address,
+          tokenAmount: lockDYSN,
+          stakeTime: 30 * TimeUnits.Day,
+        }),
+        account: usedAccount,
+      },
+    })
+
+    await publicClientSepolia.readContract({
+      ...getVaultCount(usedAccount.address),
+      address: TEST_CONFIG.sDyson,
+    })
     const pairLength = await testClientSepolia.readContract({
       ...preparePairLengths(),
       address: TEST_CONFIG.pairFactory,
@@ -43,7 +89,6 @@ describe('test gauge', () => {
       }),
       address: TEST_CONFIG.sDyson as Address,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(approveResult.receipt.status).toBe('success')
@@ -71,10 +116,10 @@ describe('test gauge', () => {
     const depositResult = await sendTestTransaction({
       ...prepareGaugeDeposit(testClientSepolia, {
         tokenAmount: targetAmount,
+        addressTo: testClientSepolia.account.address,
       }),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(depositResult.receipt.status).toBe('success')
@@ -94,7 +139,6 @@ describe('test gauge', () => {
       }),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(applyWithdrawResult.receipt.status).toBe('success')
@@ -107,7 +151,7 @@ describe('test gauge', () => {
     expect(gaugeBalance).toBe(gaugeBalanceAfterApplyWithdraw)
 
     await testClientSepolia.setNextBlockTimestamp({
-      timestamp: (~~(Date.now() / (TimeUnits.Week * 1000)) + 1) * TimeUnits.Week,
+      timestamp: BigInt((~~(Date.now() / (TimeUnits.Week * 1000)) + 1) * TimeUnits.Week),
     })
 
     await testClientSepolia.mine({
@@ -118,7 +162,6 @@ describe('test gauge', () => {
       ...prepareGaugeWithdraw(testClientSepolia),
       address: sampleGauge!.gaugeAddress,
       account: testClientSepolia.account,
-      network: 'sepolia',
     })
 
     expect(withdrawResult.receipt.status).toBe('success')

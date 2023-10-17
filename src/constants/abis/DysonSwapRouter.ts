@@ -16,6 +16,16 @@ export default [
         name: '_factory',
         type: 'address',
       },
+      {
+        internalType: 'address',
+        name: '_sDYSON',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_DYSON',
+        type: 'address',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -41,6 +51,19 @@ export default [
         internalType: 'bytes32',
         name: '',
         type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'DYSON',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
     stateMutability: 'view',
@@ -164,6 +187,29 @@ export default [
     inputs: [
       {
         internalType: 'address',
+        name: 'gauge',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+    ],
+    name: 'depositToGauge',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
         name: 'pair',
         type: 'address',
       },
@@ -182,6 +228,25 @@ export default [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes[]',
+        name: 'data',
+        type: 'bytes[]',
+      },
+    ],
+    name: 'multicall',
+    outputs: [
+      {
+        internalType: 'bytes[]',
+        name: 'results',
+        type: 'bytes[]',
+      },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -240,6 +305,114 @@ export default [
     ],
     name: 'rescueERC20',
     outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'sDYSON',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'deadline',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint8',
+        name: 'v',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'r',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 's',
+        type: 'bytes32',
+      },
+    ],
+    name: 'selfPermit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'pair',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'deadline',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: 'sig',
+        type: 'bytes',
+      },
+    ],
+    name: 'setApprovalForAllWithSig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'lockDuration',
+        type: 'uint256',
+      },
+    ],
+    name: 'stakeDyson',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'sDYSONAmount',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -324,6 +497,40 @@ export default [
   {
     inputs: [
       {
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'indexes',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'minOutput',
+        type: 'uint256',
+      },
+    ],
+    name: 'swapETHInWithMultiHops',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'output',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
         name: 'tokenIn',
         type: 'address',
@@ -350,6 +557,84 @@ export default [
       },
     ],
     name: 'swapETHOut',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'output',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'indexes',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'input',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'minOutput',
+        type: 'uint256',
+      },
+    ],
+    name: 'swapETHOutWithMultiHops',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'output',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'indexes',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'input',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'minOutput',
+        type: 'uint256',
+      },
+    ],
+    name: 'swapWithMultiHops',
     outputs: [
       {
         internalType: 'uint256',
@@ -390,16 +675,6 @@ export default [
         name: 'to',
         type: 'address',
       },
-      {
-        internalType: 'uint256',
-        name: 'deadline',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes',
-        name: 'sig',
-        type: 'bytes',
-      },
     ],
     name: 'withdraw',
     outputs: [
@@ -434,16 +709,6 @@ export default [
         name: 'to',
         type: 'address',
       },
-      {
-        internalType: 'uint256',
-        name: 'deadline',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes',
-        name: 'sig',
-        type: 'bytes',
-      },
     ],
     name: 'withdrawETH',
     outputs: [
@@ -456,6 +721,40 @@ export default [
         internalType: 'uint256',
         name: 'token1Amt',
         type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: 'pairs',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'indexes',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'address[]',
+        name: 'tos',
+        type: 'address[]',
+      },
+    ],
+    name: 'withdrawMultiPositions',
+    outputs: [
+      {
+        internalType: 'uint256[]',
+        name: 'token0Amounts',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'token1Amounts',
+        type: 'uint256[]',
       },
     ],
     stateMutability: 'nonpayable',

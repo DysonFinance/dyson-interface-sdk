@@ -48,7 +48,7 @@ export default [
         type: 'uint256',
       },
     ],
-    name: 'GrantAP',
+    name: 'GrantSP',
     type: 'event',
   },
   {
@@ -262,7 +262,7 @@ export default [
         type: 'uint256',
       },
     ],
-    name: 'grantAP',
+    name: 'grantSP',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

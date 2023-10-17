@@ -20,6 +20,7 @@ export interface IMainAddressesConfig {
   tokens: { [baseToken in PoolTokenType]?: Address }
   baseTokenPair: { [baseToken in PoolTokenType]?: Address }
   bribeSample: Address
+  faucet: Address
 }
 
 export const TEST_CONFIG: IMainAddressesConfig = JSON.parse(

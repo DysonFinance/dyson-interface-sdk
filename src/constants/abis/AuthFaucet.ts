@@ -32,46 +32,14 @@ export default [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint8',
-        name: 'v',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes32',
-        name: 'r',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'bytes32',
-        name: 's',
-        type: 'bytes32',
-      },
-    ],
+    inputs: [],
     name: 'claimAgent',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint8',
-        name: 'v',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes32',
-        name: 'r',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'bytes32',
-        name: 's',
-        type: 'bytes32',
-      },
-    ],
+    inputs: [],
     name: 'claimToken',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -99,28 +67,10 @@ export default [
         name: '_agency',
         type: 'address',
       },
-      {
-        internalType: 'address',
-        name: '_signer',
-        type: 'address',
-      },
     ],
     name: 'set',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'signer',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
   },
   {

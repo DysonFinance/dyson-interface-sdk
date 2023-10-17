@@ -119,21 +119,21 @@ function getParentDigest(
       ],
       register: [
         { name: 'once', type: 'address' },
-        { name: 'deadline', type: 'uint' },
-        { name: 'price', type: 'uint' },
+        { name: 'deadline', type: 'uint256' },
+        { name: 'price', type: 'uint256' },
       ],
     },
     primaryType: 'register' as const,
     domain: {
-      name: 'Dyson Agency',
+      name: 'Agency',
       version: '1',
       chainId: BigInt(chainId),
       verifyingContract: agencyAddress as Address,
     },
     message: {
       once: onceAddress as Address,
-      deadline: BigInt(deadline) as any,
-      price: 0n as any,
+      deadline: BigInt(deadline),
+      price: 0n,
     },
   })
 
@@ -180,7 +180,7 @@ function getOnceTypedData(
       register: [{ name: 'child', type: 'address' }],
     },
     domain: {
-      name: 'Dyson Agency',
+      name: 'Agency',
       version: '1',
       chainId: chainId,
       verifyingContract: agencyAddress,

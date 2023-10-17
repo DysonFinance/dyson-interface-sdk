@@ -66,6 +66,8 @@
     "clean": "rimraf ./dist",
     "test": "vitest run",
     "test:w": "vitest",
+    "test:ui": "vitest --ui",
+    "check": "tsc",
     "lint:fix": "eslint ./src --ext .jsx,.js,.ts,.tsx --quiet --fix --ignore-path ./.gitignore",
     "lint:format": "prettier  --loglevel warn --write \"./**/*.{js,jsx,ts,tsx,css,md,json}\" ",
     "lint": "yarn lint:format && yarn lint:fix "
@@ -76,6 +78,7 @@
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
     "@viem/anvil": "^0.0.6",
+    "@vitest/ui": "^0.34.6",
     "dedent": "^1.5.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",

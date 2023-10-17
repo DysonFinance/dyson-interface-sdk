@@ -29,9 +29,9 @@ export async function signReferral(
     }
   }
   const parentSig = await client.signTypedData({
-    domain: parentTypedData.domain as any,
+    domain: parentTypedData.domain,
     types: parentTypedData.types,
-    message: parentTypedData.message as any,
+    message: parentTypedData.message,
     account: client.account!,
     primaryType: 'register',
   })
@@ -65,12 +65,12 @@ function getParentTypedData(
       ],
       register: [
         { name: 'once', type: 'address' },
-        { name: 'deadline', type: 'uint' },
-        { name: 'price', type: 'uint' },
+        { name: 'deadline', type: 'uint256' },
+        { name: 'price', type: 'uint256' },
       ],
     },
     domain: {
-      name: 'Dyson Agency',
+      name: 'Agency',
       version: '1',
       chainId: BigInt(chainId),
       verifyingContract: agencyAddress as Address,
