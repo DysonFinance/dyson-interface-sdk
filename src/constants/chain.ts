@@ -3,4 +3,6 @@ export enum ChainId {
   POLYGON = 137,
   FANTOM = 250,
   SEPOLIA = 11155111,
+  LINEA_GOERLI = 59140,
+  LINEA = 59144,
 }
