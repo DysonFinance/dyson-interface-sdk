@@ -66,7 +66,7 @@ export async function getDysonPairInfos(
   client: PublicClient,
   args: ReadContractParameters<{
     account: Address
-    farmAddress: Address
+    farmAddress?: Address
     pairConfigs: {
       pairAddress: Address
       token0Address: Address
@@ -91,7 +91,7 @@ export async function getDysonPairInfos(
     callContractList.push(pairNoteCountContract(pairAddress, account))
     callContractList.push(tokenBalanceContract(token0Address, pairAddress))
     callContractList.push(tokenBalanceContract(token1Address, pairAddress))
-    callContractList.push(farmGaugeContract(farmAddress, pairAddress))
+    farmAddress && callContractList.push(farmGaugeContract(farmAddress, pairAddress))
 
     return callContractList
   })
@@ -104,13 +104,14 @@ export async function getDysonPairInfos(
 
   const blockTime = pairDataResult.shift() as bigint
 
-  const pairDataMatrix = chunk(pairDataResult, 7)
+  const chunkSize = farmAddress ? 7 : 6
+  const pairDataMatrix = chunk(pairDataResult, chunkSize)
 
   const dysonPairInfoList: DysonPair[] = []
   pairDataMatrix.map((pairDateArray, index) => {
     const [basis, feeStored, halfLife, noteCount, token0Amount, token1Amount, pool] =
       pairDateArray
-    const poolArray = pool as any[]
+    const poolArray = (pool as any[]) ?? []
     const { pairAddress, token0Address, token1Address } = pairConfigs[index]
     const [feeRatio0, feeRatio1] = feeStored as any
 
@@ -126,11 +127,11 @@ export async function getDysonPairInfos(
       token1Amount: token1Amount as bigint,
       noteCount: account ? Number(noteCount as bigint) : undefined,
       farmPoolInfo: {
-        weight: poolArray[0],
-        rewardRate: poolArray[1],
-        lastUpdateTime: poolArray[2],
-        lastReserve: poolArray[3],
-        gauge: poolArray[4],
+        weight: poolArray[0] ?? 0n,
+        rewardRate: poolArray[1] ?? 0n,
+        lastUpdateTime: poolArray[2] ?? 0n,
+        lastReserve: poolArray[3] ?? 0n,
+        gauge: poolArray[4] ?? undefined,
       },
 
       timeStamp0: Number(blockTime),

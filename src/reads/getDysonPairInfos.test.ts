@@ -25,5 +25,27 @@ describe('fetching dyson pair test', () => {
     })
 
     expect(pairResult.dysonPairInfoList.length).toBe(Number(pairLength))
+
+    const emptyFarm = await getDysonPairInfos(publicClientSepolia, {
+      account: testClientSepolia.account.address,
+      pairConfigs: Object.values(swapConfigMap),
+    })
+
+    expect(!!emptyFarm.dysonPairInfoList[0]).toBe(true)
+    expect(!!emptyFarm.dysonPairInfoList[0]?.farmPoolInfo.gauge).toBe(false)
+    expect(emptyFarm.dysonPairInfoList).toStrictEqual(
+      pairResult.dysonPairInfoList.map((ele) => {
+        return {
+          ...ele,
+          farmPoolInfo: {
+            weight: 0n,
+            rewardRate: 0n,
+            lastUpdateTime: 0n,
+            lastReserve: 0n,
+            gauge: undefined,
+          },
+        }
+      }),
+    )
   })
 })
