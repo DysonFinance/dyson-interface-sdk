@@ -38,12 +38,20 @@ function pairNoteCountContract(pairAddress: Address, account: Address) {
   }
 }
 
-function tokenBalanceContract(tokenAddress: Address, account: Address) {
+export function tokenBalanceContract(tokenAddress: Address, account: Address) {
   return {
     address: tokenAddress,
     abi: erc20BalanceAbi,
     functionName: 'balanceOf',
     args: [account],
+  }
+}
+
+function pairReservesContract(pairAddress: Address) {
+  return {
+    address: pairAddress,
+    abi: DYSON_PAIR_ABI,
+    functionName: 'getReserves',
   }
 }
 
@@ -82,15 +90,14 @@ export async function getDysonPairInfos(
   const { account, farmAddress, pairConfigs } = args
 
   const noteContractMatrix = pairConfigs.map((pairConfig) => {
-    const { token0Address, token1Address, pairAddress } = pairConfig
+    const { pairAddress } = pairConfig
     const callContractList = []
 
     callContractList.push(pairAttributeContract(pairAddress, 'basis'))
     callContractList.push(pairAttributeContract(pairAddress, 'getFeeRatio'))
     callContractList.push(pairAttributeContract(pairAddress, 'halfLife'))
     callContractList.push(pairNoteCountContract(pairAddress, account))
-    callContractList.push(tokenBalanceContract(token0Address, pairAddress))
-    callContractList.push(tokenBalanceContract(token1Address, pairAddress))
+    callContractList.push(pairReservesContract(pairAddress))
     farmAddress && callContractList.push(farmGaugeContract(farmAddress, pairAddress))
 
     return callContractList
@@ -104,16 +111,16 @@ export async function getDysonPairInfos(
 
   const blockTime = pairDataResult.shift() as bigint
 
-  const chunkSize = farmAddress ? 7 : 6
+  const chunkSize = farmAddress ? 6 : 5
   const pairDataMatrix = chunk(pairDataResult, chunkSize)
 
   const dysonPairInfoList: DysonPair[] = []
   pairDataMatrix.map((pairDateArray, index) => {
-    const [basis, feeStored, halfLife, noteCount, token0Amount, token1Amount, pool] =
-      pairDateArray
+    const [basis, feeStored, halfLife, noteCount, reserves, pool] = pairDateArray
     const poolArray = (pool as any[]) ?? []
     const { pairAddress, token0Address, token1Address } = pairConfigs[index]
     const [feeRatio0, feeRatio1] = feeStored as any
+    const [reserve0, reserve1] = reserves as any
 
     dysonPairInfoList.push({
       pairAddress,
@@ -123,8 +130,8 @@ export async function getDysonPairInfos(
       halfLife: halfLife as bigint,
       token0Address,
       token1Address,
-      token0Amount: token0Amount as bigint,
-      token1Amount: token1Amount as bigint,
+      token0Amount: reserve0 as bigint,
+      token1Amount: reserve1 as bigint,
       noteCount: account ? Number(noteCount as bigint) : undefined,
       farmPoolInfo: {
         weight: poolArray[0] ?? 0n,
