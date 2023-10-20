@@ -24,7 +24,7 @@ export interface IMainAddressesConfig {
 }
 
 export const TEST_CONFIG: IMainAddressesConfig = JSON.parse(
-  import.meta.env.VITE_SEPOLIA_NETWORK_CONFIG,
+  import.meta.env.VITE_TEST_NETWORK_CONFIG,
 )
 
 export const TEST_JSON_RPC = import.meta.env.VITE_APP_TEST_RPC
