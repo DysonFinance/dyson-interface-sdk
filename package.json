@@ -63,7 +63,7 @@
   },
   "scripts": {
     "build": "tsup",
-    "publish": "npm version patch && pnpm run build && npm publish",
+    "prepublishOnly": "npm version patch && pnpm run build",
     "clean": "rimraf ./dist",
     "test": "vitest run",
     "test:w": "vitest",
