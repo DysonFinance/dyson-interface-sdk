@@ -54,9 +54,9 @@ export const calcFairPriceBigInt = (
     (quoteTokenReserve *
       opponentUnit *
       WeiPerEther *
-      sqrt((WeiPerEther - reasonableBaseFee) * WeiPerEther)) /
+      sqrt((WeiPerEther - reasonableOpponentFee) * WeiPerEther)) /
     (opponentTokenReserve *
-      sqrt((WeiPerEther - reasonableOpponentFee) * WeiPerEther) *
+      sqrt((WeiPerEther - reasonableBaseFee) * WeiPerEther) *
       baseUnit)
   return result // 1e18 format
 }
