@@ -70,7 +70,7 @@ export async function getPairsConfig(
   })) as Address[]
 
   const dysonPoolConfigMap: DysonConfigMapType = {}
-  const tokenChunks = chunk(tokenAddresses, 2)
+  const tokenChunks: Address[][] = chunk(tokenAddresses, 2)
   tokenChunks.map((tokenArray, index) => {
     const [token0Address, token1Address] = tokenArray
     const pairAddress = pairAddresses[index]

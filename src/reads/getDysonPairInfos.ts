@@ -112,7 +112,7 @@ export async function getDysonPairInfos(
   const blockTime = pairDataResult.shift() as bigint
 
   const chunkSize = farmAddress ? 6 : 5
-  const pairDataMatrix = chunk(pairDataResult, chunkSize)
+  const pairDataMatrix: any[] = chunk(pairDataResult, chunkSize)
 
   const dysonPairInfoList: DysonPair[] = []
   pairDataMatrix.map((pairDateArray, index) => {
