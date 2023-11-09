@@ -24,11 +24,15 @@ export class PoolToken<TokenType extends string> {
   #cachedOfTokenInfoAddress = new Map<string, PoolTokenDataType<TokenType>>()
   static createPoolTokenDict<TokenType extends string>(
     dict: Record<TokenType, PoolTokenDataType<TokenType>>,
+    chainList: number[],
   ) {
-    return new PoolToken(dict)
+    return new PoolToken(dict, chainList)
   }
 
-  constructor(public PoolTokenData: Record<TokenType, PoolTokenDataType<TokenType>>) {}
+  constructor(
+    public PoolTokenData: Record<TokenType, PoolTokenDataType<TokenType>>,
+    public chainList: number[],
+  ) {}
 
   getPoolTokenDataType(tokenAddress: string) {
     if (!tokenAddress) return
@@ -39,7 +43,8 @@ export class PoolToken<TokenType extends string> {
       this.PoolTokenData,
     )) {
       if (
-        Object.values(tokenInfo.address)
+        this.chainList
+          .map((chain) => tokenInfo.address[chain as ChainId] ?? '')
           .filter((e) => !!e)
           .map((address) => address.toLowerCase())
           .includes(_tokenAddress)
