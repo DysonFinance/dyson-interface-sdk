@@ -10,13 +10,13 @@ import { sqrt } from './commonCalc'
 import { calcSwappedAmount } from './swapCalc'
 
 export const calcStrikePriceByAmount = (
-  quoteTokenAmount: number,
   baseTokenAmount: number,
+  quoteTokenAmount: number,
 ) => {
-  if (quoteTokenAmount === 0) {
+  if (baseTokenAmount === 0) {
     return 0
   }
-  return baseTokenAmount / quoteTokenAmount
+  return quoteTokenAmount / baseTokenAmount
 }
 
 export const calcStrikePrice = (
