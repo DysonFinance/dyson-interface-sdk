@@ -18,6 +18,7 @@ export interface TokenPriceConfig {
   chainLinkFeed?: { [chain in ChainId]?: string }
   dysonPool?: { [chain in ChainId]?: string }
   constantPrice?: number
+  pythFeedId?: { [chain in ChainId]?: string }
 }
 
 export class PoolToken<TokenType extends string> {
