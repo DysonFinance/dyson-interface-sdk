@@ -95,6 +95,25 @@ export const calcDepositToGov = (
   return globalApToGOV(globalAp, reserveGlobal, globalW)
 }
 
+export const calcDepositToSp = (
+  inputTokenAmount: bigint,
+  virtualSwapOutputAmount: bigint,
+  premium: number,
+  boosting: number,
+  gaugePoolReserve: number,
+  gaugePoolW: number,
+) => {
+  const localAp = calcLocalAP(
+    inputTokenAmount,
+    virtualSwapOutputAmount,
+    premium,
+    boosting,
+  )
+  const globalAp = localAPToGlobalAP(localAp, gaugePoolReserve, gaugePoolW)
+
+  return globalAp
+}
+
 export const calcGovCurrentPrice = (
   govAmount: number,
   reserveUSD: number,
