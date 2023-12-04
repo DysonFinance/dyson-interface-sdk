@@ -51,10 +51,10 @@ describe.only('sdysn test', async () => {
           tokenAmount: lockDYSN,
           stakeTime: 30 * TimeUnits.Day,
         }),
-        address: TEST_CONFIG.sDyson,
+        address: TEST_CONFIG.router,
         gas: await getStakeGasFee({
           client: testClientSepolia,
-          contractAddress: TEST_CONFIG.sDyson,
+          contractAddress: TEST_CONFIG.router,
           userAddress: usedAccount.address,
           to: usedAccount.address,
           tokenAmount: lockDYSN,
