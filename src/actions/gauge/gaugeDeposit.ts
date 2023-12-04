@@ -1,11 +1,11 @@
 import { Address, getAbiItem, WalletClient } from 'viem'
 
-import GAUGE_ABI from '@/constants/abis/Gauge'
+import DysonSwapRouter from '@/constants/abis/DysonSwapRouter'
 import { prepareFunctionParams } from '@/utils/viem'
 
 export function prepareGaugeDeposit(
   client: WalletClient,
-  args: { tokenAmount: bigint; addressTo: Address },
+  args: { tokenAmount: bigint; addressTo: Address; gaugeAddress: Address },
 ) {
   const chain = client.chain
   if (!chain?.id) {
@@ -14,9 +14,9 @@ export function prepareGaugeDeposit(
 
   return prepareFunctionParams({
     abi: getAbiItem({
-      abi: GAUGE_ABI,
-      name: 'deposit',
+      abi: DysonSwapRouter,
+      name: 'depositToGauge',
     }),
-    args: [args.tokenAmount, args.addressTo],
+    args: [args.gaugeAddress, args.tokenAmount, args.addressTo],
   })
 }
