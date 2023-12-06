@@ -117,7 +117,6 @@ describe('test gauge', () => {
       ...prepareGaugeDeposit(testClientSepolia, {
         tokenAmount: targetAmount,
         addressTo: testClientSepolia.account.address,
-        gaugeAddress: sampleGauge!.gaugeAddress,
       }),
       address: TEST_CONFIG.router,
       account: testClientSepolia.account,
