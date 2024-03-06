@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash-es'
 import { Address, getAbiItem, parseAbi, PublicClient } from 'viem'
-import { multicall } from 'viem/contract'
+import { multicall } from 'viem/actions'
 
 import {
   prepareFunctionParams,

@@ -14,5 +14,6 @@ export function prepareGaugeWithdraw(client: WalletClient) {
       abi: GAUGE_ABI,
       name: 'withdraw',
     }),
+    args: [],
   })
 }

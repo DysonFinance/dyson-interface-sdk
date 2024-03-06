@@ -5,6 +5,7 @@ import { prepareFunctionParams } from '@/utils/viem'
 export function getBaseSDysonInfo() {
   return prepareFunctionParams({
     abi: getAbiItem({ abi: SDYSN, name: 'totalSupply' }),
+    args: [],
   })
 }
 

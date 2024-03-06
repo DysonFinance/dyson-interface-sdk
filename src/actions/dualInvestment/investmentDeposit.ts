@@ -1,13 +1,14 @@
-import { ContractFunctionConfig, getAbiItem, WalletClient } from 'viem'
+import { getAbiItem, WalletClient } from 'viem'
 
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { IDepositParams } from '@/constants/investment'
 import { prepareFunctionParams } from '@/utils/viem'
+
 // Should add native token test
 export function prepareInvestmentDeposit(
   client: WalletClient,
   args: IDepositParams,
-): Omit<ContractFunctionConfig, 'address'> & { value?: bigint } {
+): ReturnType<typeof prepareFunctionParams> & { value?: bigint } {
   const chain = client.chain
   if (!chain?.id || !args.wrappedNativeToken) {
     throw new Error('Chain Id on wallet client is empty')

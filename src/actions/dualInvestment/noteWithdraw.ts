@@ -1,5 +1,5 @@
 import { unzip } from 'lodash-es'
-import { Address, ContractFunctionConfig, getAbiItem, WalletClient } from 'viem'
+import { Address, getAbiItem, WalletClient } from 'viem'
 
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
 import DysonSwapPair from '@/constants/abis/DysonSwapPair'
@@ -109,7 +109,7 @@ export function prepareNoteWithdraw(
     pairAddress: `0x${string}`
     addressTo: `0x${string}`
   },
-): Omit<ContractFunctionConfig, 'address'> & { value?: bigint | undefined } {
+): ReturnType<typeof prepareFunctionParams> & { value?: bigint | undefined } {
   const chain = client.chain
   if (!chain?.id) {
     throw new Error('Chain Id on wallet client is empty')

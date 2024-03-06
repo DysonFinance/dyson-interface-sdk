@@ -1,14 +1,14 @@
 import { type AbiFunction } from 'abitype'
-import type { BlockNumber, BlockTag, GetFunctionArgs } from 'viem'
-
+import { type BlockNumber, type BlockTag, ContractFunctionArgs } from 'viem'
 export type PresetAbiFnParamsArgs<TFunction extends AbiFunction> = {
   abi: TFunction
-} & GetFunctionArgs<[TFunction], TFunction['name']>
+  args: ContractFunctionArgs<[TFunction]>
+}
 export type PrepareFunctionParamsReturnType<TFunction extends AbiFunction> = {
   functionName: TFunction['name']
   abi: [TFunction]
-} & GetFunctionArgs<[TFunction], TFunction['name']>
-
+  args: ContractFunctionArgs<[TFunction]>
+}
 export function prepareFunctionParams<TFunction extends AbiFunction>({
   abi,
   args,
