@@ -1,0 +1,19 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.ts",
+    "src/reads/index.ts",
+    "src/actions/index.ts",
+    "src/constants/index.ts",
+    "src/constants/abis/index.ts",
+    "src/constants/index.ts",
+    "src/entities/index.ts",
+    "src/calculations/index.ts",
+    "src/utils/index.ts"
+  ],
+  "githubPages": false,
+  "out": "doc",
+  "plugin": [
+    "typedoc-plugin-markdown"
+  ]
+}

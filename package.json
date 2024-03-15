@@ -71,7 +71,8 @@
     "check": "tsc",
     "lint:fix": "eslint ./src --ext .jsx,.js,.ts,.tsx --quiet --fix --ignore-path ./.gitignore",
     "lint:format": "prettier  --loglevel warn --write \"./**/*.{js,jsx,ts,tsx,css,md,json}\" ",
-    "lint": "yarn lint:format && yarn lint:fix "
+    "lint": "yarn lint:format && yarn lint:fix ",
+    "build:doc": "typedoc"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
@@ -93,6 +94,8 @@
     "prettier": "^3.0.3",
     "rimraf": "^5.0.1",
     "tsup": "^7.2.0",
+    "typedoc": "^0.25.12",
+    "typedoc-plugin-markdown": "^3.17.1",
     "typescript": "^5.2.2",
     "vite-plugin-dts": "^3.5.3",
     "vitest": "^0.34.4"
