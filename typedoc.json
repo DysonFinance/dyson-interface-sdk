@@ -1,7 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": [
-    "src/index.ts",
     "src/reads/index.ts",
     "src/actions/index.ts",
     "src/constants/index.ts",
@@ -12,8 +11,15 @@
     "src/utils/index.ts"
   ],
   "githubPages": false,
+  "gitRemote": "public",
+  "excludePrivate": true,
+  "excludeReferences": true,
+  "readme": "none",
+  "hideGenerator": true,
   "out": "doc",
   "plugin": [
-    "typedoc-plugin-markdown"
-  ]
+    "typedoc-plugin-markdown",
+  ],
+  "hideBreadcrumbs": true,
+  "hideInPageTOC": true,
 }
