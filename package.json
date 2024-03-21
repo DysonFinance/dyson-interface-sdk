@@ -7,7 +7,7 @@
     "sdk"
   ],
   "license": "MIT",
-  "version": "0.2.3",
+  "version": "0.3.0-alpha.0",
   "type": "module",
   "homepage": "https://dyson.finance/",
   "contributors": [
@@ -63,7 +63,6 @@
   },
   "scripts": {
     "build": "tsup",
-    "prepublishOnly": "npm version patch && pnpm run build",
     "clean": "rimraf ./dist",
     "test": "vitest run",
     "test:w": "vitest",
