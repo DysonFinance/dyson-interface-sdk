@@ -2,6 +2,7 @@ import { accountManager } from '@tests/accounts'
 import { TEST_CONFIG } from '@tests/config'
 import {
   claimAgentAndToken,
+  createMockingClient,
   publicClientSepolia,
   sendTestTransaction,
   testClientSepolia,
@@ -10,12 +11,13 @@ import { type Address, encodeFunctionData } from 'viem'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { TimeUnits } from '@/constants'
+import Dyson from '@/constants/abis/Dyson'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { getPairOperatorApprovals } from '@/reads'
 import { getAccountNotes } from '@/reads/getAccountNotes'
 
 import { prepareApproveToken } from '../tokens/approveToken'
-import { prepareInvestmentDeposit } from './investmentDeposit'
+import { prepareInvestmentDeposit, prepareSelfPermit } from './investmentDeposit'
 import { prepareNoteWithdraw, prepareSetApprovalForAllWithSig } from './noteWithdraw'
 
 describe('dual investment test', async () => {
@@ -35,6 +37,51 @@ describe('dual investment test', async () => {
   })
   afterAll(async () => {
     accountManager.release(usedAccount)
+  })
+
+  it.only('self permit token from router', async () => {
+    const testClient = createMockingClient(usedAccount)
+    const nonce = await testClient.readContract({
+      abi: Dyson,
+      functionName: 'nonces',
+      args: [usedAccount.address],
+      address: TEST_CONFIG.dyson,
+    })
+
+    await sendTestTransaction({
+      ...(await prepareSelfPermit(testClient, {
+        amount: 10000000000n,
+        spender: TEST_CONFIG.router as Address,
+        tokenContract: TEST_CONFIG.dyson as Address,
+        owner: usedAccount.address,
+        deadline: Math.floor(Date.now() / 1000) + TimeUnits.Day,
+        nonce: nonce,
+        chainId: 11155111,
+      })),
+      address: TEST_CONFIG.router,
+      account: usedAccount,
+    })
+
+    const [nonce2, allowance] = await testClient.multicall({
+      allowFailure: false,
+      contracts: [
+        {
+          abi: Dyson,
+          functionName: 'nonces',
+          args: [usedAccount.address],
+          address: TEST_CONFIG.dyson,
+        },
+        {
+          abi: Dyson,
+          functionName: 'allowance',
+          args: [usedAccount.address, TEST_CONFIG.router],
+          address: TEST_CONFIG.dyson,
+        },
+      ],
+    })
+
+    expect(nonce2).toBe(nonce + 1n)
+    expect(allowance).toBe(10000000000n)
   })
 
   it.only('deposit usdc', async () => {
