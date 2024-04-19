@@ -1,8 +1,69 @@
-import { getAbiItem, WalletClient } from 'viem'
+import { Address, getAbiItem, hexToNumber, slice, WalletClient } from 'viem'
 
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { IDepositParams } from '@/constants/investment'
 import { prepareFunctionParams } from '@/utils/viem'
+
+export async function prepareSelfPermit(
+  client: WalletClient,
+  {
+    spender,
+    deadline,
+    amount,
+    tokenContract,
+    owner,
+    nonce,
+    chainId,
+  }: {
+    spender: Address
+    deadline: number
+    amount: bigint
+    tokenContract: Address
+    owner: Address
+    nonce: bigint
+    chainId: number
+  },
+) {
+  const signedData = await client.signTypedData({
+    account: client.account!,
+    domain: {
+      name: 'Dyson Sphere',
+      version: '1',
+      chainId: chainId,
+      verifyingContract: tokenContract,
+    },
+    types: {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' },
+      ],
+    },
+    primaryType: 'Permit',
+    message: {
+      spender: spender,
+      owner: owner,
+      value: amount,
+      deadline: BigInt(deadline),
+      nonce: nonce,
+    },
+  })
+  const [r, s, v] = [
+    slice(signedData, 0, 32),
+    slice(signedData, 32, 64),
+    slice(signedData, 64, 65),
+  ]
+  return prepareFunctionParams({
+    abi: getAbiItem({
+      abi: ROUTER_ABI,
+      name: 'selfPermit',
+    }),
+
+    args: [tokenContract, amount, BigInt(deadline), hexToNumber(v), r, s],
+  })
+}
 
 // Should add native token test
 export function prepareInvestmentDeposit(
