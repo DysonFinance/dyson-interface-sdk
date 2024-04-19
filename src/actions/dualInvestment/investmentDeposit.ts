@@ -13,7 +13,7 @@ export async function prepareSelfPermit(
     tokenContract,
     owner,
     nonce,
-    chainId,
+    domain,
   }: {
     spender: Address
     deadline: number
@@ -21,17 +21,17 @@ export async function prepareSelfPermit(
     tokenContract: Address
     owner: Address
     nonce: bigint
-    chainId: number
+    domain: {
+      name: string
+      version: string
+      chainId: number
+      verifyingContract: Address
+    }
   },
 ) {
   const signedData = await client.signTypedData({
     account: client.account!,
-    domain: {
-      name: 'Dyson Sphere',
-      version: '1',
-      chainId: chainId,
-      verifyingContract: tokenContract,
-    },
+    domain,
     types: {
       Permit: [
         { name: 'owner', type: 'address' },

@@ -56,7 +56,12 @@ describe('dual investment test', async () => {
         owner: usedAccount.address,
         deadline: Math.floor(Date.now() / 1000) + TimeUnits.Day,
         nonce: nonce,
-        chainId: 11155111,
+        domain: {
+          name: 'Dyson Sphere',
+          version: '1',
+          chainId: 11155111,
+          verifyingContract: TEST_CONFIG.dyson as Address,
+        },
       })),
       address: TEST_CONFIG.router,
       account: usedAccount,

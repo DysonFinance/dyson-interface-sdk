@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vitest/config'
 export default defineConfig({
+  cacheDir: '.cache',
   test: {
     environment: 'node',
     globals: true,
@@ -9,7 +10,6 @@ export default defineConfig({
     testTimeout: 30_000,
     setupFiles: ['./tests/setup.ts'],
     hookTimeout: 30_000,
-    cache: { dir: '.cache' },
     poolOptions: {
       threads: {
         singleThread: true,
