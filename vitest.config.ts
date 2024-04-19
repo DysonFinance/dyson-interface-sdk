@@ -10,7 +10,11 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     hookTimeout: 30_000,
     cache: { dir: '.cache' },
-    singleThread: true,
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
+    },
   },
   resolve: {
     alias: {

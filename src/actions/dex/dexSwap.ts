@@ -1,4 +1,4 @@
-import { ContractFunctionConfig, getAbiItem, WalletClient } from 'viem'
+import { getAbiItem, WalletClient } from 'viem'
 
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { ISwapParams } from '@/constants/dex'
@@ -7,7 +7,7 @@ import { prepareFunctionParams } from '@/utils/viem'
 export function prepareDexSwap(
   client: WalletClient,
   args: ISwapParams,
-): Omit<ContractFunctionConfig, 'address'> & { value?: bigint } {
+): ReturnType<typeof prepareFunctionParams> & { value?: bigint } {
   const chain = client.chain
   if (!chain?.id || !args.wrappedNativeToken) {
     throw new Error('Chain Id on wallet client is empty')

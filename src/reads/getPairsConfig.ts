@@ -1,7 +1,7 @@
 import { flatten } from 'lodash-es'
 import { chunk } from 'lodash-es'
-import { Address, PublicClient } from 'viem'
-import { getAbiItem, multicall } from 'viem/contract'
+import { Address, getAbiItem, PublicClient } from 'viem'
+import { multicall } from 'viem/actions'
 
 import FACTORY_ABI from '@/constants/abis/DysonSwapFactory'
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
@@ -19,6 +19,7 @@ type DysonConfigMapType = {
 export function preparePairLengths() {
   return prepareFunctionParams({
     abi: getAbiItem({ abi: FACTORY_ABI, name: 'allPairsLength' }),
+    args: [],
   })
 }
 

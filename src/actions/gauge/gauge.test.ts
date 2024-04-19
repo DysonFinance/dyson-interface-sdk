@@ -17,7 +17,11 @@ import { getVaultCount } from '@/reads/getStakingVault'
 
 import { prepareApproveToken } from '../tokens'
 import { getStakeGasFee, prepareStake } from './../sDysn/stake'
-import { prepareGaugeApplyWithdraw, prepareGaugeDeposit, prepareGaugeWithdraw } from '.'
+import {
+  prepareGaugeApplyWithdraw,
+  prepareGaugeDepositWithRouter,
+  prepareGaugeWithdraw,
+} from '.'
 let sampleGauge: { gaugeAddress: Address; pairAddress: Address } | undefined = undefined
 
 describe('test gauge', () => {
@@ -99,6 +103,14 @@ describe('test gauge', () => {
       ...prepareGaugeBalance(testClientSepolia.account.address),
       address: sampleGauge!.gaugeAddress,
     })
+    await sendTestTransaction({
+      ...prepareApproveToken(testClientSepolia, {
+        allowance: 10000000000000000000000000000n,
+        spenderAddress: TEST_CONFIG.router as Address,
+      }),
+      address: TEST_CONFIG.sDyson as Address,
+      account: testClientSepolia.account,
+    })
 
     expect(gaugeBalance).toBeGreaterThanOrEqual(0)
 
@@ -114,7 +126,8 @@ describe('test gauge', () => {
     console.log(sDysnBalance, 'sDysnBalance')
 
     const depositResult = await sendTestTransaction({
-      ...prepareGaugeDeposit(testClientSepolia, {
+      ...prepareGaugeDepositWithRouter(testClientSepolia, {
+        gaugeAddress: sampleGauge!.gaugeAddress,
         tokenAmount: targetAmount,
         addressTo: testClientSepolia.account.address,
       }),

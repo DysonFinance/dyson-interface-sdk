@@ -1,5 +1,4 @@
 import { Address, getAbiItem, PublicClient } from 'viem'
-import { multicall } from 'viem/contract'
 
 import { ABIFarm } from '@/constants/abis'
 import { IFarmRewardInfo } from '@/constants/farm'
@@ -59,7 +58,7 @@ export async function getFarmRewardInfo(
     throw new Error('Chain Id on wallet client is empty')
   }
 
-  const farmRewardInfo = await multicall(client, {
+  const farmRewardInfo = await client.multicall({
     ...readContractParameters(rest),
     allowFailure: false,
     contracts: [

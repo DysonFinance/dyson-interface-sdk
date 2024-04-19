@@ -1,4 +1,3 @@
-import type { Abi } from 'abitype'
 import {
   Account,
   Address,
@@ -7,7 +6,6 @@ import {
   encodeFunctionData,
   http,
   publicActions,
-  SimulateContractParameters,
   walletActions,
   WriteContractParameters,
 } from 'viem'
@@ -15,6 +13,7 @@ import { mnemonicToAccount, parseAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 
 import { prepareApproveToken } from '@/actions'
+import { ContractFunctionConfig } from '@/actions/types'
 import AuthFaucet from '@/constants/abis/AuthFaucet'
 
 import { TEST_CHAIN_ID, TEST_CONFIG, TEST_PORT } from './config'
@@ -46,17 +45,11 @@ export function createMockingClient(account: Account) {
     .extend(publicActions)
 }
 
-export async function sendTestTransaction<
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string = string,
->({ ...args }: SimulateContractParameters<TAbi, TFunctionName>) {
+export async function sendTestTransaction(args: ContractFunctionConfig) {
   const publicClient = publicClientSepolia
   const testClient = testClientSepolia
-
-  const { request, result } = await publicClient.simulateContract(
-    args as unknown as SimulateContractParameters<TAbi, TFunctionName>,
-  )
-  const account = parseAccount(request.account)
+  const { request, result } = await publicClient.simulateContract(args as any)
+  const account = parseAccount(request.account!)
   const params = request as unknown as WriteContractParameters
 
   // We simply pretend that the simulation is always correct. This is not going to work outside of a pristine, isolated, test environment.

@@ -1,6 +1,5 @@
 import { chunk, flatten, get } from 'lodash-es'
 import { Address, parseAbi, PublicClient } from 'viem'
-import { multicall } from 'viem/contract'
 
 import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
 import { DysonPair } from '@/entities/dysonPair'
@@ -67,7 +66,8 @@ function multicall3CurrentContract(client: PublicClient) {
     address: get(client, 'chain.contracts.multicall3.address')!,
     abi: currentBlockTimeAbi,
     functionName: 'getCurrentBlockTimestamp',
-  }
+    args: [],
+  } as const
 }
 
 export async function getDysonPairInfos(
@@ -103,10 +103,13 @@ export async function getDysonPairInfos(
     return callContractList
   })
 
-  const pairDataResult = await multicall(client, {
+  const pairDataResult = await client.multicall({
     ...readContractParameters(args),
     allowFailure: false,
-    contracts: [multicall3CurrentContract(client), ...flatten(noteContractMatrix)],
+    contracts: [
+      multicall3CurrentContract(client),
+      ...flatten(noteContractMatrix),
+    ] as any[],
   })
 
   const blockTime = pairDataResult.shift() as bigint
