@@ -9,4 +9,5 @@ export enum ChainId {
   POLYGON_ZKEVM_TESTNET = 1442,
   BLAST_SEPOLIA = 168587773,
   BLAST = 81457,
+  XLAYER = 196,
 }

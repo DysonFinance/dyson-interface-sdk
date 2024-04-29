@@ -8,6 +8,7 @@ enum PoolTokenType {
   WBTC = 'WBTC',
   DYSN = 'DYSN',
   USDB = 'USDB',
+  WOKB = 'WOKB',
 }
 
 export interface IMainAddressesConfig {
