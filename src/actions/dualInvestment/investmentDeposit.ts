@@ -1,4 +1,11 @@
-import { Address, getAbiItem, hexToNumber, slice, WalletClient } from 'viem'
+import {
+  Address,
+  getAbiItem,
+  hexToNumber,
+  slice,
+  TypedDataDomain,
+  WalletClient,
+} from 'viem'
 
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { IDepositParams } from '@/constants/investment'
@@ -21,12 +28,7 @@ export async function prepareSelfPermit(
     tokenContract: Address
     owner: Address
     nonce: bigint
-    domain: {
-      name: string
-      version: string
-      chainId: number
-      verifyingContract: Address
-    }
+    domain: TypedDataDomain
   },
 ) {
   const signedData = await client.signTypedData({
