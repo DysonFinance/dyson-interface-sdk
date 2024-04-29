@@ -21,17 +21,20 @@ export interface TokenPriceConfig {
   pythFeedId?: { [chain in ChainId]?: string }
 }
 
-export class PoolToken<TokenType extends string> {
-  #cachedOfTokenInfoAddress = new Map<string, PoolTokenDataType<TokenType>>()
-  static createPoolTokenDict<TokenType extends string>(
-    dict: Record<TokenType, PoolTokenDataType<TokenType>>,
-    chainList: number[],
-  ) {
+export class PoolToken<
+  TokenType extends string,
+  P extends PoolTokenDataType<TokenType> = PoolTokenDataType<TokenType>,
+> {
+  #cachedOfTokenInfoAddress = new Map<string, P>()
+  static createPoolTokenDict<
+    TokenType extends string,
+    P extends PoolTokenDataType<TokenType> = PoolTokenDataType<TokenType>,
+  >(dict: Record<TokenType, P>, chainList: number[]) {
     return new PoolToken(dict, chainList)
   }
 
   constructor(
-    public PoolTokenData: Record<TokenType, PoolTokenDataType<TokenType>>,
+    public PoolTokenData: Record<TokenType, P>,
     public chainList: number[],
   ) {}
 
@@ -40,9 +43,7 @@ export class PoolToken<TokenType extends string> {
     const _tokenAddress = tokenAddress.toLowerCase()
     const savedAddress = this.#cachedOfTokenInfoAddress.get(tokenAddress)
     if (savedAddress) return savedAddress
-    for (const [, tokenInfo] of Object.entries<PoolTokenDataType<TokenType>>(
-      this.PoolTokenData,
-    )) {
+    for (const [, tokenInfo] of Object.entries<P>(this.PoolTokenData)) {
       if (
         this.chainList
           .map((chain) => tokenInfo.address[chain as ChainId] ?? '')
@@ -51,7 +52,7 @@ export class PoolToken<TokenType extends string> {
           .includes(_tokenAddress)
       ) {
         this.#cachedOfTokenInfoAddress.set(_tokenAddress, tokenInfo)
-        return tokenInfo as PoolTokenDataType
+        return tokenInfo as P
       }
     }
   }
