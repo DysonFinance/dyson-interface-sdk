@@ -1,7 +1,6 @@
 import { unzip } from 'lodash-es'
 import { Address, getAbiItem, WalletClient } from 'viem'
 
-import DYSON_PAIR_ABI from '@/constants/abis/DysonSwapPair'
 import DysonSwapPair from '@/constants/abis/DysonSwapPair'
 import ROUTER_ABI from '@/constants/abis/DysonSwapRouter'
 import { prepareFunctionParams } from '@/utils/viem'
@@ -129,10 +128,10 @@ export function prepareNoteWithdraw(
 
   return prepareFunctionParams({
     abi: getAbiItem({
-      abi: DYSON_PAIR_ABI,
+      abi: ROUTER_ABI,
       name: 'withdraw',
     }),
-    args: [BigInt(noteIndex), addressTo],
+    args: [pairAddress, BigInt(noteIndex), addressTo],
   })
 }
 
