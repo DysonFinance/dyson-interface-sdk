@@ -1,6 +1,10 @@
 import { expect, it } from 'vitest'
 
-import { getMultiHopsSwappedAmount, getShortestSwapPath } from './multiHopsSwapCalc'
+import {
+  getMultiHopsSwappedAmount,
+  getMultiHopsSwappedInput,
+  getShortestSwapPath,
+} from './multiHopsSwapCalc'
 
 const graph = {
   ETH: { USDC: 1, USDT: 4 },
@@ -28,12 +32,14 @@ const depositAmount = 100_000000_000000_000000n
 const sortedCrossPoolSwapPairInfos = [
   {
     // pool 1
+    outputFeeValue: 0n,
     feeValue: 0n,
     inputReserve: 1000000_000000_000000_000000n,
     outputReserve: 1000000_000000_000000_000000n,
   },
   {
     // pool 2
+    outputFeeValue: 0n,
     feeValue: 0n,
     inputReserve: 1000000_000000_000000_000000n,
     outputReserve: 1000000_000000_000000_000000n,
@@ -44,4 +50,10 @@ it('getMultiHopsSwappedAmount', () => {
   expect(getMultiHopsSwappedAmount(sortedCrossPoolSwapPairInfos, depositAmount)).toBe(
     99980003999200159968n,
   )
+})
+
+it('getMultiHopsSwappedInput', () => {
+  expect(
+    getMultiHopsSwappedInput(sortedCrossPoolSwapPairInfos, 99980003999200159968n),
+  ).toBe(depositAmount)
 })

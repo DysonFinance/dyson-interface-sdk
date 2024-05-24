@@ -43,7 +43,7 @@ const calcNewtonInput = (
 
     const absDiffer = difference > 0n ? difference : -difference
 
-    if (absDiffer <= tolerance) {
+    if ((absDiffer <= tolerance && index > 4) || absDiffer === 0n) {
       break
     }
 
